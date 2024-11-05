@@ -4,8 +4,6 @@ import cn.luoym.bookreader.skylarkreader.book.BookProperties;
 import com.intellij.openapi.application.ApplicationManager;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
@@ -13,9 +11,17 @@ import java.util.Arrays;
 public class SettingUI {
     private JPanel setting;
     private JComboBox<String> fontSelect;
-    private JLabel fontFamily;
+    private JLabel fontFamilyLabel;
     private JLabel fontSizeLabel;
-    private JSpinner fontSize;
+    private JSpinner fontSizeSpinner;
+    private JLabel pageSizeLabel;
+    private JSpinner pageSizeSpinner;
+
+    private String fontFamily;
+
+    private int fontSize;
+
+    private int pageSize;
 
     public SettingUI() {
 
@@ -29,19 +35,41 @@ public class SettingUI {
         fontSelect.setSelectedItem(properties.getFontFamily());
         fontSelect.addItemListener( e ->{
             if (e.getStateChange() == ItemEvent.SELECTED && fontSelect.getSelectedItem() != null){
-                properties.setFontFamily((String) fontSelect.getSelectedItem());
+                fontFamily = fontSelect.getSelectedItem().toString();
             }
         });
         SpinnerNumberModel  nModel = new SpinnerNumberModel(13, 8,   50,  1);
-
-        fontSize.addChangeListener(e -> {
+        fontSizeSpinner.setModel(nModel);
+        fontSizeSpinner.addChangeListener(e -> {
             SpinnerModel source = (SpinnerModel)e.getSource();
-            Integer value = (Integer)source.getValue();
-            properties.setFontSize(value);
+            fontSize = (Integer)source.getValue();
+
+        });
+        SpinnerNumberModel  pageSizeModel = new SpinnerNumberModel(3000, 1000,   30000,  500);
+        pageSizeSpinner.setModel(pageSizeModel);
+        pageSizeSpinner.addChangeListener(e -> {
+            SpinnerModel source = (SpinnerModel)e.getSource();
+            pageSize = (Integer)source.getValue();
         });
     }
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
+    }
+
+    public JPanel getSetting() {
+        return setting;
+    }
+
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public int getPageSize() {
+        return pageSize;
     }
 }

@@ -1,6 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.book
 
 import com.intellij.openapi.application.ApplicationManager
+import okio.FileNotFoundException
 import org.apache.fontbox.ttf.BufferedRandomAccessFile
 import java.io.File
 import java.io.RandomAccessFile
@@ -10,7 +11,7 @@ class TextBook(
     bookName: String,
     index: Int,
     maxIndex: Int,
-    fontSize: Float,
+    fontSize: Int,
     val path: String,
     val randomAccessFile: RandomAccessFile
 ) :
@@ -20,10 +21,9 @@ class TextBook(
 
         fun create(path: String, index: Int): TextBook {
             val properties = ApplicationManager.getApplication().getService<BookProperties>(BookProperties::class.java)
-
             val file = File(path)
             if (!file.exists() || !file.isFile) {
-                TODO("弹出通知")
+                throw FileNotFoundException("文件不存在")
             }
             val length = file.length()
             val maxIndex = length.div(properties.pageSize).toInt()
@@ -36,9 +36,17 @@ class TextBook(
     override fun doRead(): String {
         val properties = ApplicationManager.getApplication().getService<BookProperties>(BookProperties::class.java)
         val bytes = ByteArray(properties.pageSize)
+        if (index > maxIndex) {
+            return ""
+        }
         randomAccessFile.seek((index - 1) * properties.pageSize.toLong())
         randomAccessFile.read(bytes, 0, properties.pageSize)
         return String(bytes, StandardCharsets.UTF_8)
     }
 
+    override fun isFinished():Boolean{
+        return index >= maxIndex
+    }
+
 }
+

@@ -14,8 +14,7 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    这是也给测试这是也给测试这是也给测试这是也给测试这是也给测试这是也给测试这是也给测试这是也给测试这是也给测试
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -24,5 +23,8 @@
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-    <extensions defaultExtensionNs="com.intellij"/>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow factoryClass="cn.luoym.bookreader.skylarkreader.toolwindows.ReaderToolWindowFactory"
+                    secondary="true" anchor="bottom" id="reader"/>
+    </extensions>
 </idea-plugin>

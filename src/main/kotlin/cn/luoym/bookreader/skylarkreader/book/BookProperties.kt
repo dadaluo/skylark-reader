@@ -6,9 +6,9 @@ import com.intellij.openapi.components.Service
 @Service
 class BookProperties() {
 
-    var font: String? = null
+    var fontFamily: String = "YouYuan"
 
-    var fontSize: Float = 13.0F
+    var fontSize: Int = 13
 
-    var pageSize: Int = 1000
+    var pageSize: Int = 5000
 }

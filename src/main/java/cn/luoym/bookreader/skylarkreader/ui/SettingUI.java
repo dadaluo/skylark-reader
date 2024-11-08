@@ -26,7 +26,9 @@ public class SettingUI {
     public SettingUI() {
 
         BookProperties properties = ApplicationManager.getApplication().getService(BookProperties.class);
-
+        fontFamily = properties.getFontFamily();
+        fontSize = properties.getFontSize();
+        pageSize = properties.getPageSize();
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         String[] fontFamilyNames = ge.getAvailableFontFamilyNames();
         Arrays.stream(fontFamilyNames).forEach(fontFamilyName -> {
@@ -41,14 +43,13 @@ public class SettingUI {
         SpinnerNumberModel  nModel = new SpinnerNumberModel(13, 8,   50,  1);
         fontSizeSpinner.setModel(nModel);
         fontSizeSpinner.addChangeListener(e -> {
-            SpinnerModel source = (SpinnerModel)e.getSource();
+            JSpinner source = (JSpinner) e.getSource();
             fontSize = (Integer)source.getValue();
-
         });
         SpinnerNumberModel  pageSizeModel = new SpinnerNumberModel(3000, 1000,   30000,  500);
         pageSizeSpinner.setModel(pageSizeModel);
         pageSizeSpinner.addChangeListener(e -> {
-            SpinnerModel source = (SpinnerModel)e.getSource();
+            JSpinner source = (JSpinner) e.getSource();
             pageSize = (Integer)source.getValue();
         });
     }

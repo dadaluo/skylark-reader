@@ -17,7 +17,7 @@ version = providers.gradleProperty("pluginVersion").get()
 
 // Set the JVM language level used to build the project.
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 // Configure project's dependencies
@@ -33,6 +33,8 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
+// https://mvnrepository.com/artifact/org.apache.pdfbox/fontbox
+    //implementation("org.apache.pdfbox:fontbox:2.0.32")
 
     testImplementation(libs.junit)
 

@@ -8,7 +8,7 @@ class BookProperties() {
 
     var fontFamily: String = "YouYuan"
 
-    var fontSize: Int = 13
+    var fontSize: Int = 20
 
     var pageSize: Int = 5000
 }

@@ -86,13 +86,13 @@ public class ReaderUI {
             int fontSize = book.getFontSize();
             fontSize += 1;
             book.setFontSize(fontSize);
-            setFont();
+            fontChange();
         });
         smallerFontSize.addActionListener(e -> {
             int fontSize = book.getFontSize();
             fontSize -= 1;
             book.setFontSize(fontSize);
-            setFont();
+            fontChange();
         });
     }
 
@@ -106,7 +106,7 @@ public class ReaderUI {
             AttributeSet attributeSet = textPane.getCharacterAttributes();
             document.insertString(document.getLength(), read, attributeSet);
             if (!append){
-                setFont();
+                fontChange();
             }
         } catch (BadLocationException e) {
             throw new RuntimeException(e);
@@ -114,7 +114,7 @@ public class ReaderUI {
         textPane.setDocument(document);
     }
 
-    public void setFont() {
+    public void fontChange() {
         BookProperties properties = ApplicationManager.getApplication().getService(BookProperties.class);
         SimpleAttributeSet arrSet = new SimpleAttributeSet();
         MutableAttributeSet attributes = textPane.getInputAttributes();

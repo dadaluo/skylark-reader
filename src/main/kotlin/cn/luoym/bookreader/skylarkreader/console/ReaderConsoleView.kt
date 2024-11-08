@@ -17,6 +17,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.ClientEditorManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
@@ -24,13 +25,14 @@ import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.impl.softwrap.SoftWrapAppliancePlaces
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.content.ContentFactory
 import java.awt.BorderLayout
+import javax.swing.Icon
 import javax.swing.JComponent
-import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JSpinner
 
@@ -40,6 +42,9 @@ class ReaderConsoleView(
     viewer: Boolean,
     usePredefinedMessageFilter: Boolean,
 ) : ConsoleViewImpl(project, searchScope, viewer, usePredefinedMessageFilter) {
+
+    private val log = logger<ConsoleViewImpl>()
+
 
     private lateinit var book: AbstractBook
 
@@ -89,6 +94,8 @@ class ReaderConsoleView(
         actionGroup.add(ClearThisConsoleAction(this))
         actionGroup.add(LargeFontSizeAction("LargerFont"))
         actionGroup.add(SmallerFontSizeAction("SmallerFont"))
+        val icon: Icon = IconLoader.getIcon("icon/JumpTo.svg", this::class.java)
+        actionGroup.add(JumpPageAction("Jump To", icon))
         actionGroup.add(InputPageAction())
         return actionGroup
     }
@@ -99,6 +106,7 @@ class ReaderConsoleView(
             clear()
         }
         myCancelStickToEnd = true
+        jBIntSpinner.value = book.index
         print(read, ConsoleViewContentType.NORMAL_OUTPUT)
     }
 
@@ -108,9 +116,6 @@ class ReaderConsoleView(
             ex.setFontSize(book.fontSize)
         }
     }
-
-
-
 
     class ClearThisConsoleAction(val myConsoleView: ConsoleView) : ClearConsoleAction() {
 
@@ -165,6 +170,15 @@ class ReaderConsoleView(
         }
     }
 
+    inner class JumpPageAction(name: String, icon: Icon) : AnAction(name, "", icon) {
+        override fun actionPerformed(p0: AnActionEvent) {
+            val value = jBIntSpinner.value as Int
+            book.index = value
+            log.info("page index is $value")
+            pageChange(false)
+        }
+    }
+
 
     inner class InputPageAction : AnAction(""), CustomComponentAction {
 
@@ -179,12 +193,6 @@ class ReaderConsoleView(
             val jPanel = JPanel(BorderLayout())
             val panel = JPanel()
             jBIntSpinner = JBIntSpinner(book.index, 1, book.maxIndex, 1)
-            jBIntSpinner.addChangeListener {
-                val source = it.source
-                if (source is JSpinner){
-                    gotoPage = source.value as Int
-                }
-            }
             panel.add(jBIntSpinner)
             jPanel.add(panel, BorderLayout.CENTER)
             return jPanel

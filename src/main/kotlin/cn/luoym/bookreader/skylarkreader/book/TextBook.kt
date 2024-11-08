@@ -1,5 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.book
 
+import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import com.intellij.openapi.application.ApplicationManager
 import org.apache.fontbox.ttf.BufferedRandomAccessFile
 import java.io.File
@@ -8,19 +9,20 @@ import java.io.RandomAccessFile
 import java.nio.charset.StandardCharsets
 
 class TextBook(
+    id: Long,
     bookName: String,
     index: Int,
     maxIndex: Int,
     fontSize: Int,
-    val path: String,
+    path: String,
     val randomAccessFile: RandomAccessFile
 ) :
-    AbstractBook(bookName, index, maxIndex, fontSize) {
+    AbstractBook(id, bookName, index, maxIndex, fontSize, path) {
 
     companion object {
 
         fun create(path: String, index: Int): TextBook {
-            val properties = ApplicationManager.getApplication().getService<BookProperties>(BookProperties::class.java)
+            val properties = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
             val file = File(path)
             if (!file.exists() || !file.isFile) {
                 throw FileNotFoundException("文件不存在")
@@ -28,13 +30,14 @@ class TextBook(
             val length = file.length()
             val maxIndex = length.div(properties.pageSize).toInt()
             val randomAccessFile = BufferedRandomAccessFile(file, "r", properties.pageSize * 10)
-            val book = TextBook(file.name, index, maxIndex, properties.fontSize, path, randomAccessFile)
+            val lng = System.currentTimeMillis()
+            val book = TextBook(lng, file.name, index, maxIndex, properties.fontSize, path, randomAccessFile)
             return book
         }
     }
 
     override fun doRead(): String {
-        val properties = ApplicationManager.getApplication().getService<BookProperties>(BookProperties::class.java)
+        val properties = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
         val bytes = ByteArray(properties.pageSize)
         if (index > maxIndex) {
             return ""

@@ -1,7 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.console
 
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
-import cn.luoym.bookreader.skylarkreader.book.BookProperties
+import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import com.intellij.codeWithMe.ClientId.Companion.currentOrNull
 import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.impl.ConsoleViewImpl
@@ -29,12 +29,10 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.JBIntSpinner
-import com.intellij.ui.content.ContentFactory
 import java.awt.BorderLayout
 import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JPanel
-import javax.swing.JSpinner
 
 class ReaderConsoleView(
     project: Project,
@@ -62,15 +60,13 @@ class ReaderConsoleView(
         val handler = NopProcessHandler()
         handler.startNotify()
         this.attachToProcess(handler)
-        val properties = ApplicationManager.getApplication().getService<BookProperties>(BookProperties::class.java)
+        val properties = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
         val scheme = this.editor.colorsScheme
         scheme.editorFontName = properties.fontFamily
         scheme.editorFontSize = properties.fontSize
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
         toolbar.targetComponent = this
         this.add(toolbar.component, BorderLayout.NORTH)
-        val content = ContentFactory.getInstance().createContent(this, "", false)
-        toolWindow.contentManager.addContent(content)
         pageChange(true)
     }
 
@@ -94,9 +90,10 @@ class ReaderConsoleView(
         actionGroup.add(ClearThisConsoleAction(this))
         actionGroup.add(LargeFontSizeAction("LargerFont"))
         actionGroup.add(SmallerFontSizeAction("SmallerFont"))
+        jBIntSpinner = JBIntSpinner(book.index, 1, book.maxIndex, 1)
         val icon: Icon = IconLoader.getIcon("icon/JumpTo.svg", this::class.java)
-        actionGroup.add(JumpPageAction("Jump To", icon))
-        actionGroup.add(InputPageAction())
+        actionGroup.add(JumpPageAction("JumpTo", icon, jBIntSpinner))
+        actionGroup.add(InputPageAction(jBIntSpinner))
         return actionGroup
     }
 
@@ -170,9 +167,10 @@ class ReaderConsoleView(
         }
     }
 
-    inner class JumpPageAction(name: String, icon: Icon) : AnAction(name, "", icon) {
+    inner class JumpPageAction(name: String, icon: Icon, val intSpinner: JBIntSpinner) : AnAction(name, "", icon) {
+
         override fun actionPerformed(p0: AnActionEvent) {
-            val value = jBIntSpinner.value as Int
+            val value = intSpinner.value as Int
             book.index = value
             log.info("page index is $value")
             pageChange(false)
@@ -180,9 +178,7 @@ class ReaderConsoleView(
     }
 
 
-    inner class InputPageAction : AnAction(""), CustomComponentAction {
-
-        private var gotoPage: Int = 0
+    inner class InputPageAction(val intSpinner: JBIntSpinner) : AnAction(""), CustomComponentAction {
 
         override fun actionPerformed(p0: AnActionEvent) {
         }
@@ -192,8 +188,7 @@ class ReaderConsoleView(
         ): JComponent {
             val jPanel = JPanel(BorderLayout())
             val panel = JPanel()
-            jBIntSpinner = JBIntSpinner(book.index, 1, book.maxIndex, 1)
-            panel.add(jBIntSpinner)
+            panel.add(intSpinner)
             jPanel.add(panel, BorderLayout.CENTER)
             return jPanel
         }

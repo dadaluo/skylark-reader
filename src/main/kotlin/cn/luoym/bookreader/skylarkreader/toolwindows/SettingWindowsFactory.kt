@@ -1,6 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.toolwindows
 
-import cn.luoym.bookreader.skylarkreader.book.BookProperties
+import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import cn.luoym.bookreader.skylarkreader.ui.SettingUI
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.SearchableConfigurable
@@ -21,7 +21,7 @@ class SettingWindowsFactory: SearchableConfigurable {
     }
 
     override fun isModified(): Boolean {
-        val properties = ApplicationManager.getApplication().getService(BookProperties::class.java);
+        val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
         return properties.fontSize != settingUI?.fontSize ||
                 properties.pageSize != settingUI?.pageSize ||
                 properties.fontFamily != settingUI?.fontFamily
@@ -35,7 +35,7 @@ class SettingWindowsFactory: SearchableConfigurable {
     }
 
     override fun apply() {
-        val properties = ApplicationManager.getApplication().getService(BookProperties::class.java);
+        val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
         properties.fontSize = settingUI?.fontSize ?: properties.fontSize
         properties.fontFamily = settingUI?.fontFamily ?: properties.fontFamily
         properties.pageSize = settingUI?.pageSize ?: properties.pageSize

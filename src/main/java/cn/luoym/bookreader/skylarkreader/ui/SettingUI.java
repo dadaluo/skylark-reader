@@ -1,6 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.ui;
 
-import cn.luoym.bookreader.skylarkreader.book.BookProperties;
+import cn.luoym.bookreader.skylarkreader.properties.SettingProperties;
 import com.intellij.openapi.application.ApplicationManager;
 
 import javax.swing.*;
@@ -25,7 +25,7 @@ public class SettingUI {
 
     public SettingUI() {
 
-        BookProperties properties = ApplicationManager.getApplication().getService(BookProperties.class);
+        SettingProperties properties = ApplicationManager.getApplication().getService(SettingProperties.class);
         fontFamily = properties.getFontFamily();
         fontSize = properties.getFontSize();
         pageSize = properties.getPageSize();

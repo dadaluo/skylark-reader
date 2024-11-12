@@ -40,13 +40,13 @@ public class SettingUI {
                 fontFamily = fontSelect.getSelectedItem().toString();
             }
         });
-        SpinnerNumberModel  nModel = new SpinnerNumberModel(13, 8,   50,  1);
+        SpinnerNumberModel  nModel = new SpinnerNumberModel(properties.getFontSize(), 8,   50,  1);
         fontSizeSpinner.setModel(nModel);
         fontSizeSpinner.addChangeListener(e -> {
             JSpinner source = (JSpinner) e.getSource();
             fontSize = (Integer)source.getValue();
         });
-        SpinnerNumberModel  pageSizeModel = new SpinnerNumberModel(3000, 1000,   30000,  500);
+        SpinnerNumberModel  pageSizeModel = new SpinnerNumberModel(properties.getPageSize(), 1000,   30000,  500);
         pageSizeSpinner.setModel(pageSizeModel);
         pageSizeSpinner.addChangeListener(e -> {
             JSpinner source = (JSpinner) e.getSource();

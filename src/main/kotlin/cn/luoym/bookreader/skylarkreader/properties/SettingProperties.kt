@@ -4,6 +4,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import java.io.Serializable
 
 
 @Service
@@ -31,7 +32,8 @@ class SettingProperties : PersistentStateComponent<SettingProperties.State> {
         pageSize = p0.pageSize
     }
 
-    class State{
+    class State : Serializable{
+
         var fontFamily: String = "YouYuan"
 
         var fontSize: Int = 20

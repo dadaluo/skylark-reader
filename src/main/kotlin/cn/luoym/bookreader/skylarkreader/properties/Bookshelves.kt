@@ -1,6 +1,8 @@
 package cn.luoym.bookreader.skylarkreader.properties
 
+import cn.luoym.bookreader.skylarkreader.utils.sendNotify
 import com.intellij.execution.impl.ConsoleViewImpl
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
@@ -9,37 +11,42 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.xmlb.annotations.Attribute
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.Serializable
 
 
 @Service
-@State(name = "SettingProperties", storages = [Storage(value = "SkylarkReaderBookshelves.xml")])
+@State(name = "Bookshelves", storages = [Storage(value = "SkylarkReaderBookshelves.xml")])
 class Bookshelves : PersistentStateComponent<Bookshelves.State> {
 
     private val log = logger<ConsoleViewImpl>()
 
     var bookshelves: LinkedHashMap<Long, BookState> = LinkedHashMap()
 
-    fun addBook(bookState: BookState) {
-        bookshelves[bookState.id] = bookState
+    fun addBook(path: String) {
+        val file = File(path)
+        addBook(file)
     }
 
-    fun addBook(path: String) {
+    fun addBook(file: File) {
+        log.info("add book ${file.absolutePath} to bookshelves")
         val properties =
             ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
-        val any = bookshelves.values.any { it.path == path }
-        if (any) {
-            log.info("该文件已经在书架中")
+        if (!file.exists() || !file.isFile) {
+            sendNotify("文件${file.path}不存在", NotificationType.ERROR)
             return
         }
-        val file = File(path)
-        if (!file.exists() || !file.isFile) {
-            throw FileNotFoundException("文件不存在")
+        val any = bookshelves.values.any { it.path == file.absolutePath }
+        if (any) {
+            sendNotify("《${file.name}》已经在书架中", NotificationType.INFORMATION)
+            return
         }
         val currentTimeMillis = System.currentTimeMillis()
-        val bookState = BookState(currentTimeMillis, file.name, 1, properties.fontSize, path)
+        val bookState = BookState(currentTimeMillis, file.name, 1, properties.fontSize, file.absolutePath)
         bookshelves[currentTimeMillis] = bookState
+    }
+
+    fun removeBook(bookState: BookState) {
+        bookshelves.remove(bookState.id)
     }
 
     override fun getState(): State? {
@@ -59,18 +66,26 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
 
 }
 
-class BookState(
+class BookState : Serializable {
     @Attribute
-    val id: Long,
+    var id: Long? = null
     @Attribute
-    val bookName: String,
+    var bookName: String? = null
     @Attribute
-    var index: Int,
+    var index: Int? = null
     @Attribute
-    var fontSize: Int,
+    var fontSize: Int? = null
     @Attribute
-    val path: String
-) : Serializable {
+    var path: String? = null
 
+    constructor()
+
+    constructor(id: Long, bookName: String, index: Int, fontSize: Int, path: String) {
+        this.id = id
+        this.bookName = bookName
+        this.fontSize = fontSize
+        this.index = index
+        this.path = path
+    }
 }
 

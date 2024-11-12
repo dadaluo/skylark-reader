@@ -25,7 +25,7 @@ class TextBook(
             val properties = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
             val file = File(path)
             if (!file.exists() || !file.isFile) {
-                throw FileNotFoundException("文件不存在")
+                throw FileNotFoundException("文件${path}不存在！")
             }
             val length = file.length()
             val maxIndex = length.div(properties.pageSize).toInt()

@@ -1,13 +1,15 @@
-package cn.luoym.bookreader.skylarkreader.console
+package cn.luoym.bookreader.skylarkreader.ui
 
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
+import cn.luoym.bookreader.skylarkreader.toolwindows.Context
 import com.intellij.codeWithMe.ClientId.Companion.currentOrNull
 import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.process.NopProcessHandler
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.execution.ui.ConsoleViewContentType
+import com.intellij.icons.AllIcons.Actions
 import com.intellij.icons.AllIcons.General
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
@@ -34,7 +36,7 @@ import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class ReaderConsoleView(
+class ReaderConsoleUI(
     project: Project,
     searchScope: GlobalSearchScope,
     viewer: Boolean,
@@ -44,7 +46,7 @@ class ReaderConsoleView(
     private val log = logger<ConsoleViewImpl>()
 
 
-    private lateinit var book: AbstractBook
+    lateinit var book: AbstractBook
 
     private lateinit var jBIntSpinner:JBIntSpinner
 
@@ -63,7 +65,7 @@ class ReaderConsoleView(
         val properties = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
         val scheme = this.editor.colorsScheme
         scheme.editorFontName = properties.fontFamily
-        scheme.editorFontSize = properties.fontSize
+        scheme.editorFontSize = book.fontSize
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
         toolbar.targetComponent = this
         this.add(toolbar.component, BorderLayout.NORTH)
@@ -73,12 +75,13 @@ class ReaderConsoleView(
 
     fun createActionGroup(): DefaultActionGroup {
         val actionGroup = DefaultActionGroup()
+        actionGroup.add(ExitAction("Exit"))
         actionGroup.add(PrePageAction("PrePage"))
         actionGroup.add(NextPageAction("NextPage"))
         val switchSoftWrapsAction: AnAction =
             object : ToggleUseSoftWrapsToolbarAction(SoftWrapAppliancePlaces.CONSOLE) {
                 override fun getEditor(e: AnActionEvent): Editor? {
-                    val editor = this@ReaderConsoleView.editor
+                    val editor = this@ReaderConsoleUI.editor
                     return if (editor == null) null else ClientEditorManager.getClientEditor(editor, currentOrNull)
                 }
             }
@@ -90,7 +93,7 @@ class ReaderConsoleView(
         actionGroup.add(ClearThisConsoleAction(this))
         actionGroup.add(LargeFontSizeAction("LargerFont"))
         actionGroup.add(SmallerFontSizeAction("SmallerFont"))
-        jBIntSpinner = JBIntSpinner(book.index, 1, book.maxIndex, 1)
+        jBIntSpinner = JBIntSpinner(book.pageIndex, 1, book.maxPageIndex, 1)
         val icon: Icon = IconLoader.getIcon("icon/JumpTo.svg", this::class.java)
         actionGroup.add(JumpPageAction("JumpTo", icon, jBIntSpinner))
         actionGroup.add(InputPageAction(jBIntSpinner))
@@ -103,7 +106,7 @@ class ReaderConsoleView(
             clear()
         }
         myCancelStickToEnd = true
-        jBIntSpinner.value = book.index
+        jBIntSpinner.value = book.pageIndex
         print(read, ConsoleViewContentType.NORMAL_OUTPUT)
     }
 
@@ -128,8 +131,8 @@ class ReaderConsoleView(
 
     inner class PrePageAction(name: String) : AnAction(name, "", General.ChevronLeft) {
         override fun actionPerformed(event: AnActionEvent) {
-            if (book.index != 1) {
-                book.index = book.index - 1
+            if (book.pageIndex != 1) {
+                book.pageIndex = book.pageIndex - 1
                 pageChange(false)
             }
         }
@@ -138,8 +141,8 @@ class ReaderConsoleView(
     inner class NextPageAction(name: String) : AnAction(name, "", General.ChevronRight) {
 
         override fun actionPerformed(p0: AnActionEvent) {
-            if (book.index != book.maxIndex) {
-                book.index = book.index + 1
+            if (book.pageIndex != book.maxPageIndex) {
+                book.pageIndex = book.pageIndex + 1
                 pageChange(true)
             }
         }
@@ -171,7 +174,7 @@ class ReaderConsoleView(
 
         override fun actionPerformed(p0: AnActionEvent) {
             val value = intSpinner.value as Int
-            book.index = value
+            book.pageIndex = value
             log.info("page index is $value")
             pageChange(false)
         }
@@ -191,6 +194,13 @@ class ReaderConsoleView(
             panel.add(intSpinner)
             jPanel.add(panel, BorderLayout.CENTER)
             return jPanel
+        }
+    }
+
+    inner class ExitAction(name: String): AnAction(name, "", Actions.Exit) {
+        override fun actionPerformed(p0: AnActionEvent) {
+            val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
+            context.readerToolWindowFactory.showBookshelvesUI()
         }
     }
 }

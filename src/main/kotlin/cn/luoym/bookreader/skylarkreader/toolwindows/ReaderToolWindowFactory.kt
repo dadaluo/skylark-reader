@@ -1,20 +1,26 @@
 package cn.luoym.bookreader.skylarkreader.toolwindows
 
-import cn.luoym.bookreader.skylarkreader.book.TextBook
-import cn.luoym.bookreader.skylarkreader.console.ReaderConsoleView
+import cn.luoym.bookreader.skylarkreader.book.AbstractBook
 import cn.luoym.bookreader.skylarkreader.ui.BookshelvesUI
+import cn.luoym.bookreader.skylarkreader.ui.ReaderConsoleUI
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
 
 
 class ReaderToolWindowFactory: ToolWindowFactory, DumbAware {
 
-    private lateinit var readerConsoleView: ReaderConsoleView
+    private var readerConsole: ReaderConsoleUI? = null
 
-    private lateinit var bookshelvesUI: BookshelvesUI
+    private lateinit var readerContent: Content
+
+    private var bookshelvesUI: BookshelvesUI? = null
+
+    private lateinit var bookshelvesContent: Content
 
     private lateinit var project: Project
 
@@ -26,20 +32,32 @@ class ReaderToolWindowFactory: ToolWindowFactory, DumbAware {
     ) {
         this.project = project
         this.toolWindow = toolWindow
-        val book = TextBook.create("D:/data/weblog/ddm-traffic-common/service.2024-10-31-1.log", 1)
-        readerConsoleView =  ReaderConsoleView(project, toolWindow, book)
-        bookshelvesUI = BookshelvesUI()
+        val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
+        context.readerToolWindowFactory = this
         showBookshelvesUI()
     }
 
-    fun showReaderConsole(){
-        val content = ContentFactory.getInstance().createContent(readerConsoleView, "", false)
-        toolWindow.contentManager.addContent(content)
+    fun showReaderConsole(book: AbstractBook) {
+        if (readerConsole == null) {
+            readerConsole = ReaderConsoleUI(project, toolWindow, book)
+            readerContent = ContentFactory.getInstance().createContent(readerConsole, "", false)
+        } else {
+            readerConsole!!.book = book
+        }
+        val manager = toolWindow.contentManager
+        manager.removeAllContents(false)
+        manager.addContent(readerContent)
+        readerConsole?.pageChange(false)
     }
 
     fun showBookshelvesUI() {
-        val content = ContentFactory.getInstance().createContent(bookshelvesUI.bookshelves, "", false)
-        toolWindow.contentManager.addContent(content)
+        if (bookshelvesUI == null) {
+            bookshelvesUI = BookshelvesUI()
+            bookshelvesContent = ContentFactory.getInstance().createContent(bookshelvesUI!!.bookshelves, "", false)
+        }
+        val manager = toolWindow.contentManager
+        manager.removeAllContents(false)
+        manager.addContent(bookshelvesContent)
     }
 
 

@@ -1,5 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.properties
 
+import cn.luoym.bookreader.skylarkreader.book.AbstractBook
+import cn.luoym.bookreader.skylarkreader.book.TextBook
 import cn.luoym.bookreader.skylarkreader.utils.sendNotify
 import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.notification.NotificationType
@@ -20,7 +22,7 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
 
     private val log = logger<ConsoleViewImpl>()
 
-    var bookshelves: LinkedHashMap<Long, BookState> = LinkedHashMap()
+    var bookshelves: LinkedHashMap<Long, AbstractBook> = LinkedHashMap()
 
     fun addBook(path: String) {
         val file = File(path)
@@ -41,26 +43,33 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
             return
         }
         val currentTimeMillis = System.currentTimeMillis()
-        val bookState = BookState(currentTimeMillis, file.name, 1, properties.fontSize, file.absolutePath)
-        bookshelves[currentTimeMillis] = bookState
+        val book = TextBook(file.path)
+        bookshelves[currentTimeMillis] = book
     }
 
-    fun removeBook(bookState: BookState) {
+    fun removeBook(bookState: AbstractBook) {
         bookshelves.remove(bookState.id)
     }
 
     override fun getState(): State? {
         val bookshelvesState = State()
-        bookshelvesState.bookshelves = bookshelves
+        bookshelves.values.forEach {
+            if (it is TextBook){
+                bookshelvesState.bookStateMap[it.id] = BookState(it.id, it.bookName, it.index, it.fontSize, it.path)
+            }
+        }
         return bookshelvesState
     }
 
     override fun loadState(p0: State) {
-        this.bookshelves = state!!.bookshelves
+        p0.bookStateMap.forEach {
+            val textBook = TextBook(it.value)
+            bookshelves[textBook.id] = textBook
+        }
     }
 
-    class State {
-        var bookshelves: LinkedHashMap<Long, BookState> = LinkedHashMap()
+    class State : Serializable{
+        var bookStateMap: LinkedHashMap<Long, BookState> = LinkedHashMap()
     }
 
 

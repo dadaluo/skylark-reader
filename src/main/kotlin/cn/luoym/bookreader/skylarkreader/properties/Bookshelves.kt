@@ -13,6 +13,7 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.xmlb.annotations.Attribute
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.Serializable
 
 
@@ -63,8 +64,12 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
 
     override fun loadState(p0: State) {
         p0.bookStateMap.forEach {
-            val textBook = TextBook(it.value)
-            bookshelves[textBook.id] = textBook
+            try {
+                val textBook = TextBook(it.value)
+                bookshelves[textBook.id] = textBook
+            } catch (e: FileNotFoundException) {
+                sendNotify(e.localizedMessage, NotificationType.ERROR)
+            }
         }
     }
 

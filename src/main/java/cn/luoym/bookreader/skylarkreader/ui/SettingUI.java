@@ -2,7 +2,6 @@ package cn.luoym.bookreader.skylarkreader.ui;
 
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.ui.components.JBRadioButton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,16 +16,16 @@ public class SettingUI {
     private JSpinner fontSizeSpinner;
     private JLabel pageSizeLabel;
     private JSpinner pageSizeSpinner;
-    private JBRadioButton yesRadio;
-    private JBRadioButton noRadio;
-    private JLabel autoTurnPage;
-    private ButtonGroup group = new ButtonGroup();
+    private JCheckBox autoTurnPageBox;
+
 
     private String fontFamily;
 
     private int fontSize;
 
     private int pageSize;
+
+    private boolean autoTurnPage;
 
     public SettingUI() {
 
@@ -57,8 +56,8 @@ public class SettingUI {
             JSpinner source = (JSpinner) e.getSource();
             pageSize = (Integer)source.getValue();
         });
-        group.add(yesRadio);
-        group.add(noRadio);
+        autoTurnPageBox.setSelected(properties.getAutoTurnPage());
+        autoTurnPageBox.addChangeListener(e -> autoTurnPage = autoTurnPageBox.isSelected());
     }
 
     private void createUIComponents() {
@@ -80,4 +79,9 @@ public class SettingUI {
     public int getPageSize() {
         return pageSize;
     }
+
+    public boolean isAutoTurnPage() {
+        return autoTurnPage;
+    }
+
 }

@@ -13,9 +13,11 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
 
     var fontFamily: String = "YouYuan"
 
-    var fontSize: Int = 20
+    var fontSize: Int = 14
 
-    var pageSize: Int = 5000
+    var pageSize: Int = 3000
+
+    var autoTurnPage: Boolean = true
 
 
     override fun getState(): SettingsState? {
@@ -23,6 +25,7 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
         settingPropertiesState.fontFamily = fontFamily
         settingPropertiesState.fontSize = fontSize
         settingPropertiesState.pageSize = pageSize
+        settingPropertiesState.autoTurnPage = autoTurnPage
         return settingPropertiesState
     }
 
@@ -30,6 +33,7 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
         fontFamily = p0.fontFamily
         fontSize = p0.fontSize
         pageSize = p0.pageSize
+        autoTurnPage = p0.autoTurnPage
     }
 }
 
@@ -40,4 +44,7 @@ class SettingsState : Serializable {
     var fontSize: Int = 14
 
     var pageSize: Int = 3000
+
+    var autoTurnPage: Boolean = true
+
 }

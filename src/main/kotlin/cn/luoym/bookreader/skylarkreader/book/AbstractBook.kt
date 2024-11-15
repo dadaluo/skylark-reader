@@ -14,6 +14,15 @@ abstract class AbstractBook {
 
     var maxPageIndex: Int = 1
 
+    fun addPageIndex(int: Int):Boolean{
+        val i = pageIndex + int
+        if(i > maxPageIndex || i < 1){
+            return false
+        }
+        pageIndex = i
+        return true
+    }
+
     abstract fun doRead():String
 
     abstract fun isFinished():Boolean

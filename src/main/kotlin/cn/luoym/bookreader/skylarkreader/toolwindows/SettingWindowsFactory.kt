@@ -24,7 +24,8 @@ class SettingWindowsFactory: SearchableConfigurable {
         val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
         return properties.fontSize != settingUI?.fontSize ||
                 properties.pageSize != settingUI?.pageSize ||
-                properties.fontFamily != settingUI?.fontFamily
+                properties.fontFamily != settingUI?.fontFamily ||
+                properties.autoTurnPage != settingUI?.isAutoTurnPage
     }
 
     override fun createComponent(): JComponent? {
@@ -39,6 +40,6 @@ class SettingWindowsFactory: SearchableConfigurable {
         properties.fontSize = settingUI?.fontSize ?: properties.fontSize
         properties.fontFamily = settingUI?.fontFamily ?: properties.fontFamily
         properties.pageSize = settingUI?.pageSize ?: properties.pageSize
-        //ReaderToolWindowFactory.Companion.readerUI?.fontChange()
+        properties.autoTurnPage = settingUI?.isAutoTurnPage ?: properties.autoTurnPage
     }
 }

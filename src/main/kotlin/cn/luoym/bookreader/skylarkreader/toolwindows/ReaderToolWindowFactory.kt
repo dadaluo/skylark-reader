@@ -47,7 +47,7 @@ class ReaderToolWindowFactory: ToolWindowFactory, DumbAware {
         val manager = toolWindow.contentManager
         manager.removeAllContents(false)
         manager.addContent(readerContent)
-        readerConsole?.pageChange(false)
+        readerConsole?.pageChange(0, false)
     }
 
     fun showBookshelvesUI() {

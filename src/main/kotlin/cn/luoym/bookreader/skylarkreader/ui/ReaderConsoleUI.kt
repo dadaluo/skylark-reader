@@ -62,14 +62,29 @@ class ReaderConsoleUI(
         val handler = NopProcessHandler()
         handler.startNotify()
         this.attachToProcess(handler)
-        val properties = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
-        val scheme = this.editor.colorsScheme
-        scheme.editorFontName = properties.fontFamily
-        scheme.editorFontSize = book.fontSize
+        editorInit()
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
         toolbar.targetComponent = this
         this.add(toolbar.component, BorderLayout.NORTH)
-        pageChange(true)
+        pageChange(0, true)
+    }
+
+    fun editorInit() {
+        val properties =
+            ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
+        val scheme = this.editor.colorsScheme
+        scheme.editorFontName = properties.fontFamily
+        scheme.editorFontSize = book.fontSize
+        val editorx = this.editor
+        if (editorx is EditorEx) {
+            editorx.scrollPane.verticalScrollBar
+                .addAdjustmentListener {
+                    if (properties.autoTurnPage && isStickingToEnd(editorx)) {
+                        pageChange(1, true)
+                    }
+                }
+        }
+
     }
 
 
@@ -100,14 +115,17 @@ class ReaderConsoleUI(
         return actionGroup
     }
 
-    fun pageChange(append: Boolean) {
-        val read = this.book.doRead()
-        if (!append) {
-            clear()
+    fun pageChange(int: Int, append: Boolean) {
+        val add = book.addPageIndex(int)
+        if (add) {
+            val read = this.book.doRead()
+            if (!append) {
+                clear()
+            }
+            myCancelStickToEnd = true
+            jBIntSpinner.value = book.pageIndex
+            print(read, ConsoleViewContentType.NORMAL_OUTPUT)
         }
-        myCancelStickToEnd = true
-        jBIntSpinner.value = book.pageIndex
-        print(read, ConsoleViewContentType.NORMAL_OUTPUT)
     }
 
     fun fontChange() {
@@ -131,20 +149,14 @@ class ReaderConsoleUI(
 
     inner class PrePageAction(name: String) : AnAction(name, "", General.ChevronLeft) {
         override fun actionPerformed(event: AnActionEvent) {
-            if (book.pageIndex != 1) {
-                book.pageIndex = book.pageIndex - 1
-                pageChange(false)
-            }
+            pageChange(-1, false)
         }
     }
 
     inner class NextPageAction(name: String) : AnAction(name, "", General.ChevronRight) {
 
         override fun actionPerformed(p0: AnActionEvent) {
-            if (book.pageIndex != book.maxPageIndex) {
-                book.pageIndex = book.pageIndex + 1
-                pageChange(true)
-            }
+            pageChange(1, true)
         }
     }
 
@@ -174,9 +186,8 @@ class ReaderConsoleUI(
 
         override fun actionPerformed(p0: AnActionEvent) {
             val value = intSpinner.value as Int
-            book.pageIndex = value
             log.info("page index is $value")
-            pageChange(false)
+            pageChange(value - book.pageIndex, false)
         }
     }
 

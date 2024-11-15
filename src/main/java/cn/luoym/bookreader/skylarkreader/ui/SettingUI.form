@@ -57,28 +57,12 @@
         </constraints>
         <properties/>
       </component>
-      <component id="3a19b" class="javax.swing.JLabel" binding="autoTurnPage">
+      <component id="5a689" class="javax.swing.JCheckBox" binding="autoTurnPageBox">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="自动翻页"/>
-        </properties>
-      </component>
-      <component id="1f50f" class="com.intellij.ui.components.JBRadioButton" binding="yesRadio">
-        <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="是"/>
-        </properties>
-      </component>
-      <component id="81c4d" class="com.intellij.ui.components.JBRadioButton" binding="noRadio">
-        <constraints>
-          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="否"/>
+          <text value="阅读到页底时是否自动翻页"/>
         </properties>
       </component>
     </children>

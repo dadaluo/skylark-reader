@@ -26,7 +26,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="cn.luoym.bookreader.skylarkreader.toolwindows.ReaderToolWindowFactory"
                     secondary="true" anchor="bottom" id="skylark-reader"/>
-        <applicationConfigurable groupId="tools" id="skylark-reader-settings" displayName="Skylark Reader" instance="cn.luoym.bookreader.skylarkreader.toolwindows.SettingWindowsFactory"/>
+        <applicationConfigurable groupId="tools" id="skylark-reader-settings" displayName="Skylark Reader" instance="cn.luoym.bookreader.skylarkreader.toolwindows.ReaderSettingConfigurable"/>
         <notificationGroup displayType="BALLOON" id="skylark-reader-notification"/>
     </extensions>
 </idea-plugin>

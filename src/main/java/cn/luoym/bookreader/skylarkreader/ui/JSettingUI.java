@@ -8,8 +8,8 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
 
-public class SettingUI {
-    private JPanel setting;
+public class JSettingUI {
+    private JPanel settings;
     private JComboBox<String> fontSelect;
     private JLabel fontFamilyLabel;
     private JLabel fontSizeLabel;
@@ -27,7 +27,7 @@ public class SettingUI {
 
     private boolean autoTurnPage;
 
-    public SettingUI() {
+    public JSettingUI() {
 
         SettingProperties properties = ApplicationManager.getApplication().getService(SettingProperties.class);
         fontFamily = properties.getFontFamily();
@@ -64,8 +64,8 @@ public class SettingUI {
         // TODO: place custom component creation code here
     }
 
-    public JPanel getSetting() {
-        return setting;
+    public JPanel getSettings() {
+        return settings;
     }
 
     public String getFontFamily() {

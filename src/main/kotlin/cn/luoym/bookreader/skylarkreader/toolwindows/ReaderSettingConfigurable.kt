@@ -1,16 +1,17 @@
 package cn.luoym.bookreader.skylarkreader.toolwindows
 
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
-import cn.luoym.bookreader.skylarkreader.ui.SettingUI
+import cn.luoym.bookreader.skylarkreader.ui.JSettingUI
+import cn.luoym.bookreader.skylarkreader.ui.SettingsUI
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.util.NlsContexts
 import org.jetbrains.annotations.NonNls
 import javax.swing.JComponent
 
-class SettingWindowsFactory: SearchableConfigurable {
+class ReaderSettingConfigurable: SearchableConfigurable {
 
-    private var settingUI: SettingUI? = null
+    private var settingsUI: SettingsUI? = null
 
     override fun getId(): @NonNls String {
         return "skylark-reader-settings"
@@ -22,24 +23,24 @@ class SettingWindowsFactory: SearchableConfigurable {
 
     override fun isModified(): Boolean {
         val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
-        return properties.fontSize != settingUI?.fontSize ||
-                properties.pageSize != settingUI?.pageSize ||
-                properties.fontFamily != settingUI?.fontFamily ||
-                properties.autoTurnPage != settingUI?.isAutoTurnPage
+        return properties.fontSize != settingsUI?.fontSize ||
+                properties.pageSize != settingsUI?.pageSize ||
+                properties.fontFamily != settingsUI?.fontFamily ||
+                properties.autoTurnPage != settingsUI?.autoTurnPage
     }
 
     override fun createComponent(): JComponent? {
-        if (settingUI == null) {
-            settingUI = SettingUI()
+        if (settingsUI == null) {
+            settingsUI = SettingsUI()
         }
-        return settingUI?.setting
+        return settingsUI?.settings
     }
 
     override fun apply() {
         val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
-        properties.fontSize = settingUI?.fontSize ?: properties.fontSize
-        properties.fontFamily = settingUI?.fontFamily ?: properties.fontFamily
-        properties.pageSize = settingUI?.pageSize ?: properties.pageSize
-        properties.autoTurnPage = settingUI?.isAutoTurnPage ?: properties.autoTurnPage
+        properties.fontSize = settingsUI?.fontSize ?: properties.fontSize
+        properties.fontFamily = settingsUI?.fontFamily ?: properties.fontFamily
+        properties.pageSize = settingsUI?.pageSize ?: properties.pageSize
+        properties.autoTurnPage = settingsUI?.autoTurnPage ?: properties.autoTurnPage
     }
 }

@@ -9,10 +9,12 @@ import com.intellij.uiDesigner.core.GridConstraints
 import com.intellij.uiDesigner.core.GridLayoutManager
 import com.intellij.uiDesigner.core.Spacer
 import com.intellij.util.ui.JBUI
+import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import java.awt.event.ItemEvent
 import java.awt.event.ItemListener
 import javax.swing.JCheckBox
+import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.event.ChangeEvent
@@ -67,15 +69,21 @@ class SettingsUI {
         val fontFamilyNames = ge.availableFontFamilyNames
         fontSelect = ComboBox<String>(fontFamilyNames, -1)
         fontSelect.selectedItem = fontFamily
-        settings.add(fontSelect, GridConstraints().apply {
-            row = 0
-            column = 1
-            rowSpan = 1
-            colSpan = 1
-            anchor = GridConstraints.ANCHOR_WEST
-            hSizePolicy = 0
-            vSizePolicy = 0
-        })
+        settings.add(
+            fontSelect, GridConstraints(
+                0,
+                1,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                0,
+                0,
+                Dimension(200, -1),
+                Dimension(200, -1),
+                Dimension(200, -1)
+            )
+        )
 
         fontSizeLabel = JBLabel("默认字体大小")
         settings.add(fontSizeLabel, GridConstraints().apply {
@@ -89,16 +97,21 @@ class SettingsUI {
         })
 
         fontSizeSpinner = JBIntSpinner(fontSize, 6, 50)
-        settings.add(fontSizeSpinner, GridConstraints().apply {
-            row = 0
-            column = 3
-            rowSpan = 1
-            colSpan = 1
-            anchor = GridConstraints.ANCHOR_WEST
-            hSizePolicy = 2
-            vSizePolicy = 0
-            fill = 1
-        })
+        settings.add(
+            fontSizeSpinner, GridConstraints(
+                0,
+                3,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                0,
+                0,
+                Dimension(200, -1),
+                Dimension(200, -1),
+                Dimension(200, -1)
+            )
+        )
 
         pageSizeLabel = JBLabel("分页大小")
         settings.add(pageSizeLabel, GridConstraints().apply {
@@ -112,15 +125,17 @@ class SettingsUI {
         })
 
         pageSizeSpinner = JBIntSpinner(pageSize, 1000, 50000, 500)
-        settings.add(pageSizeSpinner, GridConstraints().apply {
-            row = 1
-            column = 1
-            rowSpan = 1
-            colSpan = 1
-            anchor = GridConstraints.ANCHOR_WEST
-            hSizePolicy = 2
-            vSizePolicy = 0
-        })
+        settings.add(pageSizeSpinner, GridConstraints(1,
+            1,
+            1,
+            1,
+            GridConstraints.ANCHOR_WEST,
+            GridConstraints.FILL_NONE,
+            0,
+            0,
+            Dimension(200, -1),
+            Dimension(200, -1),
+            Dimension(200, -1)))
 
         autoTurnPageBox = JCheckBox("阅读到页底时是否自动翻页")
         settings.add(autoTurnPageBox, GridConstraints().apply {
@@ -174,6 +189,4 @@ class SettingsUI {
         autoTurnPage = properties.autoTurnPage
         fontFamily = properties.fontFamily
     }
-
-
 }

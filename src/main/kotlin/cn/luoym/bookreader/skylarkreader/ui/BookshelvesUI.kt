@@ -1,7 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.ui
 
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
-import cn.luoym.bookreader.skylarkreader.book.TextBook
 import cn.luoym.bookreader.skylarkreader.listener.MouseEventHandler
 import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
 import cn.luoym.bookreader.skylarkreader.toolwindows.Context
@@ -21,24 +20,26 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.content.Content
+import com.intellij.ui.content.ContentFactory
 import com.jgoodies.common.collect.ArrayListModel
 import java.awt.BorderLayout
 import java.awt.event.MouseListener
-import java.io.File
-import java.math.BigDecimal
-import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.function.Consumer
 import javax.swing.JPanel
 import javax.swing.ListModel
 
-class BookshelvesUI {
+class BookshelvesUI : PluginUI {
 
     val bookshelves: JPanel = JPanel(BorderLayout())
 
     val listMode: ArrayListModel<AbstractBook> = ArrayListModel<AbstractBook>()
 
     val jbList: JBList<AbstractBook> = JBList<AbstractBook>()
+
+    private val uiContent: Content
+
 
     constructor(){
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
@@ -48,6 +49,7 @@ class BookshelvesUI {
         bookshelves.add(scrollPane, BorderLayout.CENTER)
         jbList.installCellRenderer { BookProgress(it) }
         jbList.addMouseListener(doubleClickListener())
+        uiContent = ContentFactory.getInstance().createContent(bookshelves, "", false)
         refreshShelves()
     }
 
@@ -57,6 +59,7 @@ class BookshelvesUI {
             if (it.clickCount >= 2) {
                 val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
                 val currentSelect = jbList.selectedValue
+                context.currentBook= currentSelect
                 context.readerToolWindowFactory.showReaderConsole(currentSelect)
             }
         }
@@ -80,6 +83,9 @@ class BookshelvesUI {
         }
     }
 
+    override fun uiContent(): Content {
+        return uiContent
+    }
 
     inner class AddBookAction : AnAction("Add Book", "", AllIcons.General.Add) {
         override fun actionPerformed(p0: AnActionEvent) {
@@ -117,33 +123,26 @@ class BookshelvesUI {
                 return
             }
             val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
+            context.currentBook= currentSelect
             context.readerToolWindowFactory.showReaderConsole(currentSelect)
         }
     }
 
     inner class BookProgress(val book: AbstractBook) : JPanel() {
-        val decimalFormat = DecimalFormat("0.00%")
         init {
             val fileLabel = JBLabel()
             val percentLabel = JBLabel()
             this.setLayout(BorderLayout())
-            if (book is TextBook) {
-                val file = File(book.path)
-                val length = file.length()
-                val lengthDecimal = BigDecimal(length)
-                val indexDecimal = BigDecimal(book.index)
-                val divide = indexDecimal.divide(lengthDecimal, 4, RoundingMode.HALF_UP)
-                val percent = decimalFormat.format(divide)
-                val labelText = "  " + book.path
-                fileLabel.horizontalAlignment = JBLabel.LEFT
-                fileLabel.text = labelText
-                fileLabel.icon = AllIcons.FileTypes.Text
+            val percent = book.readingProgress()
+            val labelText = "  " + book.path
+            fileLabel.horizontalAlignment = JBLabel.LEFT
+            fileLabel.text = labelText
+            fileLabel.icon = AllIcons.FileTypes.Text
 
-                percentLabel.text = percent
-                percentLabel.horizontalAlignment = JBLabel.RIGHT
-                this.add(fileLabel, BorderLayout.WEST)
-                this.add(percentLabel, BorderLayout.EAST)
-            }
+            percentLabel.text = percent
+            percentLabel.horizontalAlignment = JBLabel.RIGHT
+            this.add(fileLabel, BorderLayout.WEST)
+            this.add(percentLabel, BorderLayout.EAST)
         }
     }
 

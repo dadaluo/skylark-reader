@@ -1,6 +1,8 @@
 package cn.luoym.bookreader.skylarkreader.properties
 
+import cn.luoym.bookreader.skylarkreader.BookTypeEnum
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
+import cn.luoym.bookreader.skylarkreader.book.EpubBook
 import cn.luoym.bookreader.skylarkreader.book.TextBook
 import cn.luoym.bookreader.skylarkreader.utils.sendNotify
 import com.intellij.execution.impl.ConsoleViewImpl
@@ -32,8 +34,6 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
 
     fun addBook(file: File) {
         log.info("add book ${file.absolutePath} to bookshelves")
-        val properties =
-            ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
         if (!file.exists() || !file.isFile) {
             sendNotify("文件${file.path}不存在", NotificationType.ERROR)
             return
@@ -44,19 +44,52 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
             return
         }
         val currentTimeMillis = System.currentTimeMillis()
-        val book = TextBook(file.path)
-        bookshelves[currentTimeMillis] = book
+        val typeEnum = BookTypeEnum.bookType(file.name)
+        when (typeEnum) {
+            BookTypeEnum.TEXT_BOOK -> {
+                val book = TextBook(file.path)
+                bookshelves[currentTimeMillis] = book
+            }
+            BookTypeEnum.EPUB_BOOK -> {
+                val book = EpubBook(file.path)
+                bookshelves[currentTimeMillis] = book
+            }
+            BookTypeEnum.WEB_SITE -> {
+
+            }
+            BookTypeEnum.NOT_SUPPORTED -> {
+                sendNotify("《${file.name}》不支持该类型文件", NotificationType.WARNING)
+            }
+        }
+
+
     }
 
     fun removeBook(bookState: AbstractBook) {
         bookshelves.remove(bookState.id)
     }
 
+    fun resetBookPageIndex(){
+        bookshelves.values.forEach {
+            if (it is TextBook) {
+                it.resetPageIndex()
+            }
+        }
+    }
+
     override fun getState(): State? {
         val bookshelvesState = State()
         bookshelves.values.forEach {
             if (it is TextBook){
-                bookshelvesState.bookStateMap[it.id] = BookState(it.id, it.bookName, it.index, it.fontSize, it.path)
+                bookshelvesState.bookStateMap[it.id] = BookState(
+                    it.id, it.bookName, it.index, it.fontSize, it.path,
+                    BookTypeEnum.TEXT_BOOK
+                )
+            } else if (it is EpubBook) {
+                bookshelvesState.bookStateMap[it.id] = BookState(
+                    it.id, it.bookName, it.pageIndex, it.fontSize, it.path,
+                    BookTypeEnum.EPUB_BOOK
+                )
             }
         }
         return bookshelvesState
@@ -65,8 +98,27 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
     override fun loadState(p0: State) {
         p0.bookStateMap.forEach {
             try {
-                val textBook = TextBook(it.value)
-                bookshelves[textBook.id] = textBook
+                val value = it.value
+                if (value.bookType == null){
+                    value.bookType = BookTypeEnum.bookType(value.bookName!!)
+                }
+                when (value.bookType!!) {
+                    BookTypeEnum.TEXT_BOOK -> {
+                        val textBook = TextBook(it.value)
+                        bookshelves[textBook.id] = textBook
+                    }
+                    BookTypeEnum.EPUB_BOOK -> {
+                        val epubBook = EpubBook(it.value)
+                        bookshelves[epubBook.id] = epubBook
+                    }
+                    BookTypeEnum.WEB_SITE -> {
+
+                    }
+                    BookTypeEnum.NOT_SUPPORTED -> {
+
+                    }
+                }
+
             } catch (e: FileNotFoundException) {
                 sendNotify(e.localizedMessage, NotificationType.ERROR)
             }
@@ -92,14 +144,18 @@ class BookState : Serializable {
     @Attribute
     var path: String? = null
 
+    @Attribute
+    var bookType: BookTypeEnum? = null
+
     constructor()
 
-    constructor(id: Long, bookName: String, index: Int, fontSize: Int, path: String) {
+    constructor(id: Long, bookName: String, index: Int, fontSize: Int, path: String, bookType: BookTypeEnum) {
         this.id = id
         this.bookName = bookName
         this.fontSize = fontSize
         this.index = index
         this.path = path
+        this.bookType = bookType
     }
 }
 

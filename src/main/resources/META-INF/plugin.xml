@@ -28,5 +28,6 @@
                     secondary="true" anchor="bottom" id="skylark-reader"/>
         <applicationConfigurable groupId="tools" id="skylark-reader-settings" displayName="Skylark Reader" instance="cn.luoym.bookreader.skylarkreader.toolwindows.ReaderSettingConfigurable"/>
         <notificationGroup displayType="BALLOON" id="skylark-reader-notification"/>
+        <httpRequestHandler implementation="cn.luoym.bookreader.skylarkreader.jcef.EpubResourceStaticServer"/>
     </extensions>
 </idea-plugin>

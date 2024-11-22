@@ -1,9 +1,13 @@
 package cn.luoym.bookreader.skylarkreader.toolwindows
 
+import cn.luoym.bookreader.skylarkreader.BookTypeEnum
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
 import cn.luoym.bookreader.skylarkreader.ui.BookshelvesUI
+import cn.luoym.bookreader.skylarkreader.ui.HtmlReaderUI
 import cn.luoym.bookreader.skylarkreader.ui.ReaderConsoleUI
+import cn.luoym.bookreader.skylarkreader.ui.ReaderUI
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.service.execution.NotSupportedException
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -14,17 +18,12 @@ import com.intellij.ui.content.ContentFactory
 
 class ReaderToolWindowFactory: ToolWindowFactory, DumbAware {
 
-    private var readerConsole: ReaderConsoleUI? = null
-
-    private lateinit var readerContent: Content
-
-    private var bookshelvesUI: BookshelvesUI? = null
-
-    private lateinit var bookshelvesContent: Content
 
     private lateinit var project: Project
 
     private lateinit var toolWindow: ToolWindow
+
+    val context: Context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
 
     override fun createToolWindowContent(
         project: Project,
@@ -38,29 +37,35 @@ class ReaderToolWindowFactory: ToolWindowFactory, DumbAware {
     }
 
     fun showReaderConsole(book: AbstractBook) {
-        if (readerConsole == null) {
-            readerConsole = ReaderConsoleUI(project, toolWindow, book)
-            readerContent = ContentFactory.getInstance().createContent(readerConsole, "", false)
-        } else {
-            readerConsole!!.book = book
-        }
+        val readerUI = findReaderUI(book)
         val manager = toolWindow.contentManager
         manager.removeAllContents(false)
-        manager.addContent(readerContent)
-        readerConsole?.pageChange(0, false)
+        manager.addContent(readerUI.uiContent())
+        readerUI.showReadContent()
     }
 
     fun showBookshelvesUI() {
-        if (bookshelvesUI == null) {
-            bookshelvesUI = BookshelvesUI()
-            bookshelvesContent = ContentFactory.getInstance().createContent(bookshelvesUI!!.bookshelves, "", false)
+        if (context.bookshelvesUI == null) {
+            context.bookshelvesUI = BookshelvesUI()
         }
         val manager = toolWindow.contentManager
         manager.removeAllContents(false)
-        manager.addContent(bookshelvesContent)
+        manager.addContent(context.bookshelvesUI!!.uiContent())
     }
 
-
-
+    fun findReaderUI(book: AbstractBook): ReaderUI {
+        if (book.bookType == BookTypeEnum.TEXT_BOOK) {
+            if (context.textReadConsole == null) {
+                context.textReadConsole = ReaderConsoleUI(project, toolWindow, book)
+            }
+            return context.textReadConsole!!
+        } else if (book.bookType == BookTypeEnum.EPUB_BOOK) {
+            if (context.htmlReaderUI == null) {
+                context.htmlReaderUI = HtmlReaderUI(project, toolWindow, book)
+            }
+            return context.htmlReaderUI!!
+        }
+        throw NotSupportedException("不支持的类型")
+    }
 
 }

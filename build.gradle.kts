@@ -23,6 +23,9 @@ kotlin {
 // Configure project's dependencies
 repositories {
     mavenLocal()
+    maven {
+        url = uri("https://maven.aliyun.com/repository/public")
+    }
     mavenCentral()
 
     // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
@@ -37,6 +40,9 @@ dependencies {
     //implementation("org.apache.pdfbox:fontbox:2.0.32")
 
     testImplementation(libs.junit)
+
+    implementation("io.documentnode:epub4j-core:4.2.1")
+
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {

@@ -1,5 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.book
 
+import cn.luoym.bookreader.skylarkreader.BookTypeEnum
 import cn.luoym.bookreader.skylarkreader.properties.BookState
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import com.intellij.openapi.application.ApplicationManager
@@ -7,7 +8,10 @@ import org.apache.fontbox.ttf.BufferedRandomAccessFile
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.RandomAccessFile
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.nio.charset.StandardCharsets
+import java.text.DecimalFormat
 
 class TextBook(path: String) : AbstractBook() {
     val randomAccessFile: RandomAccessFile
@@ -16,6 +20,7 @@ class TextBook(path: String) : AbstractBook() {
 
     init {
         this.path = path
+        this.bookType = BookTypeEnum.TEXT_BOOK
         properties =
             ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
         val file = File(path)
@@ -37,6 +42,10 @@ class TextBook(path: String) : AbstractBook() {
         pageIndex = bookState.index!!.div(properties.pageSize).toInt() + 1
     }
 
+    fun resetPageIndex(){
+        pageIndex = index / properties.pageSize + 1
+    }
+
     fun getBookPosition(): Long {
         if (pageIndex > maxPageIndex) {
             return index.toLong()
@@ -52,9 +61,12 @@ class TextBook(path: String) : AbstractBook() {
         return String(bytes, StandardCharsets.UTF_8)
     }
 
-    override fun isFinished():Boolean{
-        return pageIndex >= maxPageIndex
+    override fun readingProgress(): String{
+        val decimalFormat = DecimalFormat("0.00%")
+        val lengthDecimal = BigDecimal(randomAccessFile.length())
+        val indexDecimal = BigDecimal(index)
+        val divide = indexDecimal.divide(lengthDecimal, 4, RoundingMode.HALF_UP)
+        return decimalFormat.format(divide)
     }
-
 }
 

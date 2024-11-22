@@ -1,7 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.toolwindows
 
+import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
-import cn.luoym.bookreader.skylarkreader.ui.JSettingUI
 import cn.luoym.bookreader.skylarkreader.ui.SettingsUI
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.SearchableConfigurable
@@ -40,7 +40,11 @@ class ReaderSettingConfigurable: SearchableConfigurable {
         val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
         properties.fontSize = settingsUI?.fontSize ?: properties.fontSize
         properties.fontFamily = settingsUI?.fontFamily ?: properties.fontFamily
-        properties.pageSize = settingsUI?.pageSize ?: properties.pageSize
         properties.autoTurnPage = settingsUI?.autoTurnPage ?: properties.autoTurnPage
+        if (settingsUI?.pageSize != properties.pageSize) {
+            properties.pageSize = settingsUI?.pageSize ?: properties.pageSize
+            val bookshelves = ApplicationManager.getApplication().getService(Bookshelves::class.java)
+            bookshelves.resetBookPageIndex()
+        }
     }
 }

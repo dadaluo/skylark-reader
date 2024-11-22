@@ -1,5 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.ui
 
+import cn.luoym.bookreader.skylarkreader.action.InputPageAction
+import cn.luoym.bookreader.skylarkreader.action.ReaderUIExitAction
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import cn.luoym.bookreader.skylarkreader.toolwindows.Context
@@ -31,6 +33,8 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.JBIntSpinner
+import com.intellij.ui.content.Content
+import com.intellij.ui.content.ContentFactory
 import java.awt.BorderLayout
 import javax.swing.Icon
 import javax.swing.JComponent
@@ -41,14 +45,15 @@ class ReaderConsoleUI(
     searchScope: GlobalSearchScope,
     viewer: Boolean,
     usePredefinedMessageFilter: Boolean,
-) : ConsoleViewImpl(project, searchScope, viewer, usePredefinedMessageFilter) {
+) : ConsoleViewImpl(project, searchScope, viewer, usePredefinedMessageFilter), ReaderUI {
 
     private val log = logger<ConsoleViewImpl>()
-
 
     lateinit var book: AbstractBook
 
     private lateinit var jBIntSpinner:JBIntSpinner
+
+    private lateinit var readerContent: Content
 
 
     constructor(project: Project, toolWindow: ToolWindow, book: AbstractBook) : this(
@@ -66,7 +71,8 @@ class ReaderConsoleUI(
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
         toolbar.targetComponent = this
         this.add(toolbar.component, BorderLayout.NORTH)
-        pageChange(0, true)
+        readerContent =  ContentFactory.getInstance().createContent(this, "", false)
+        showReadContent()
     }
 
     fun editorInit() {
@@ -87,10 +93,21 @@ class ReaderConsoleUI(
 
     }
 
+    override fun uiContent(): Content {
+        return readerContent
+    }
+
+    override fun showReadContent() {
+        pageChange(0, true)
+    }
+
+    override fun clearReadContent() {
+        clear()
+    }
 
     fun createActionGroup(): DefaultActionGroup {
         val actionGroup = DefaultActionGroup()
-        actionGroup.add(ExitAction("Exit"))
+        actionGroup.add(ReaderUIExitAction("Exit"))
         actionGroup.add(PrePageAction("PrePage"))
         actionGroup.add(NextPageAction("NextPage"))
         val switchSoftWrapsAction: AnAction =
@@ -115,8 +132,12 @@ class ReaderConsoleUI(
         return actionGroup
     }
 
-    fun pageChange(int: Int, append: Boolean) {
-        val add = book.addPageIndex(int)
+    /**
+     * @param indexChange 分页的变更量
+     * @param append 是否在console中追加文本。true: 在console的现有文本信息后追加文本信息，false: 清空console中信息后展示文本信息
+     */
+    fun pageChange(indexChange: Int, append: Boolean) {
+        val add = book.addPageIndex(indexChange)
         if (add) {
             val read = this.book.doRead()
             if (!append) {
@@ -191,27 +212,4 @@ class ReaderConsoleUI(
         }
     }
 
-
-    inner class InputPageAction(val intSpinner: JBIntSpinner) : AnAction(""), CustomComponentAction {
-
-        override fun actionPerformed(p0: AnActionEvent) {
-        }
-
-        override fun createCustomComponent(
-            presentation: Presentation, place: String
-        ): JComponent {
-            val jPanel = JPanel(BorderLayout())
-            val panel = JPanel()
-            panel.add(intSpinner)
-            jPanel.add(panel, BorderLayout.CENTER)
-            return jPanel
-        }
-    }
-
-    inner class ExitAction(name: String): AnAction(name, "", Actions.Exit) {
-        override fun actionPerformed(p0: AnActionEvent) {
-            val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
-            context.readerToolWindowFactory.showBookshelvesUI()
-        }
-    }
 }

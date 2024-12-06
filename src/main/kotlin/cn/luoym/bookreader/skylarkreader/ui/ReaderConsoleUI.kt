@@ -96,7 +96,7 @@ class ReaderConsoleUI(
     }
 
     override fun showReadContent() {
-        pageChange(0, true)
+        pageChange(0, false)
     }
 
     override fun clearReadContent() {

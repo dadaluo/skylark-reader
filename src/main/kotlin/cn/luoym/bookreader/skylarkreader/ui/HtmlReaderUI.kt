@@ -24,8 +24,7 @@ import com.intellij.ui.jcef.JCEFHtmlPanel
 import java.awt.BorderLayout
 import javax.swing.Icon
 
-class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI,
-    EditorColorsListener {
+class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI{
 
     val htmlPanel: JCEFHtmlPanel
 
@@ -54,7 +53,7 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
     }
 
     override fun showReadContent() {
-        val content = this@HtmlReaderUI.book.doRead()
+        val content = book.doRead()
         val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
         htmlPanel.loadURL(context.serverUrl + "/$content")
     }
@@ -63,8 +62,8 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
         htmlPanel.setHtml("")
     }
 
-    override fun globalSchemeChange(p0: EditorColorsScheme?) {
-        showReadContent()
+    fun reload() {
+        htmlPanel.cefBrowser.reloadIgnoreCache()
     }
 
     fun createActionGroup(): DefaultActionGroup {

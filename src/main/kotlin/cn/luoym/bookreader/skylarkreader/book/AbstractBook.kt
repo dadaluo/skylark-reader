@@ -1,6 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.book
 
 import cn.luoym.bookreader.skylarkreader.BookTypeEnum
+import com.intellij.ui.JBIntSpinner
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -16,17 +17,25 @@ abstract class AbstractBook {
     lateinit var path: String
 
     var pageIndex: Int = 1
+        set(value){
+            field = value
+            if (spinner != null) {
+                spinner!!.value = value
+            }
+        }
 
     var maxPageIndex: Int = 1
 
     var bookType: BookTypeEnum? = null
+
+    var spinner:JBIntSpinner? = null
 
     fun addPageIndex(int: Int):Boolean{
         val i = pageIndex + int
         if(i >= maxPageIndex || i < 1){
             return false
         }
-        pageIndex = i
+        this.pageIndex = i
         return true
     }
 

@@ -1,6 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.toolwindows
 
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
+import cn.luoym.bookreader.skylarkreader.properties.Constants
 import cn.luoym.bookreader.skylarkreader.ui.BookshelvesUI
 import cn.luoym.bookreader.skylarkreader.ui.HtmlReaderUI
 import cn.luoym.bookreader.skylarkreader.ui.ReaderConsoleUI
@@ -21,11 +22,6 @@ class Context {
 
     var currentBook:AbstractBook? = null
 
-    val serverUrl: String
+    val serverUrl: String =  "http://localhost:${BuiltInServerManager.getInstance().port}/${Constants.PLUGIN_NAME}"
 
-    val uuid = UUID.randomUUID().toString()
-
-    init {
-        serverUrl = "http://localhost:${BuiltInServerManager.getInstance().port}/$uuid"
-    }
 }

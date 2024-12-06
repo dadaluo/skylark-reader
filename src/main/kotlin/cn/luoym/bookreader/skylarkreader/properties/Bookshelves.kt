@@ -27,6 +27,10 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
 
     var bookshelves: LinkedHashMap<Long, AbstractBook> = LinkedHashMap()
 
+    fun findBookById(id: Long):AbstractBook? {
+        return bookshelves[id]
+    }
+
     fun addBook(path: String) {
         val file = File(path)
         addBook(file)
@@ -48,10 +52,12 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
         when (typeEnum) {
             BookTypeEnum.TEXT_BOOK -> {
                 val book = TextBook(file.path)
+                book.id = currentTimeMillis
                 bookshelves[currentTimeMillis] = book
             }
             BookTypeEnum.EPUB_BOOK -> {
                 val book = EpubBook(file.path)
+                book.id = currentTimeMillis
                 bookshelves[currentTimeMillis] = book
             }
             BookTypeEnum.WEB_SITE -> {

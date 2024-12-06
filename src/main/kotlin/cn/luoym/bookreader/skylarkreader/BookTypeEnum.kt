@@ -18,7 +18,7 @@ enum class BookTypeEnum {
             val name = split[split.size - 1]
             when (name) {
                 "epub" -> return EPUB_BOOK
-                "text", "txt" -> return TEXT_BOOK
+                "text", "txt", "log" -> return TEXT_BOOK
             }
             return NOT_SUPPORTED
         }

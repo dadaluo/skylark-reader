@@ -30,4 +30,8 @@
         <notificationGroup displayType="BALLOON" id="skylark-reader-notification"/>
         <httpRequestHandler implementation="cn.luoym.bookreader.skylarkreader.jcef.EpubResourceStaticServer"/>
     </extensions>
+    <applicationListeners>
+        <listener class="cn.luoym.bookreader.skylarkreader.listener.WebPageColorHandler"
+                  topic="com.intellij.openapi.editor.colors.EditorColorsListener"/>
+    </applicationListeners>
 </idea-plugin>

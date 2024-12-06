@@ -42,27 +42,23 @@ import javax.swing.JPanel
 
 class ReaderConsoleUI(
     project: Project,
-    searchScope: GlobalSearchScope,
-    viewer: Boolean,
-    usePredefinedMessageFilter: Boolean,
-) : ConsoleViewImpl(project, searchScope, viewer, usePredefinedMessageFilter), ReaderUI {
+    toolWindow: ToolWindow,
+    book: AbstractBook,
+) : ConsoleViewImpl(project,  GlobalSearchScope.projectScope(project), false, false), ReaderUI {
 
     private val log = logger<ConsoleViewImpl>()
 
-    lateinit var book: AbstractBook
+    var book: AbstractBook = book
+        set(value){
+            field = value
+            field.spinner = jBIntSpinner
+        }
 
     private lateinit var jBIntSpinner:JBIntSpinner
 
-    private lateinit var readerContent: Content
+    private var readerContent: Content
 
-
-    constructor(project: Project, toolWindow: ToolWindow, book: AbstractBook) : this(
-        project,
-        GlobalSearchScope.projectScope(project),
-        false,
-        false
-    ) {
-        this.book = book
+    init {
         this.component
         val handler = NopProcessHandler()
         handler.startNotify()
@@ -86,7 +82,9 @@ class ReaderConsoleUI(
             editorx.scrollPane.verticalScrollBar
                 .addAdjustmentListener {
                     if (properties.autoTurnPage && isStickingToEnd(editorx)) {
-                        pageChange(1, true)
+                        if (editorx.document.text.isNotBlank()){
+                            pageChange(1, true)
+                        }
                     }
                 }
         }
@@ -144,7 +142,7 @@ class ReaderConsoleUI(
                 clear()
             }
             myCancelStickToEnd = true
-            jBIntSpinner.value = book.pageIndex
+            //jBIntSpinner.value = book.pageIndex
             print(read, ConsoleViewContentType.NORMAL_OUTPUT)
         }
     }

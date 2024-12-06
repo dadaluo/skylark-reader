@@ -12,6 +12,8 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.colors.EditorColorsListener
+import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
@@ -22,7 +24,8 @@ import com.intellij.ui.jcef.JCEFHtmlPanel
 import java.awt.BorderLayout
 import javax.swing.Icon
 
-class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, var book: AbstractBook) : ReaderUI {
+class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI,
+    EditorColorsListener {
 
     val htmlPanel: JCEFHtmlPanel
 
@@ -30,29 +33,15 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, var book: A
 
     private val readerContent: Content
 
-    private val scrollBarStyle = """
-        <style>
-        html,
-        body {
-          &::-webkit-scrollbar {
-            width: 6px;
-          }
-          &::-webkit-scrollbar-thumb {
-            background-color: rgba(144, 147, 153, 0.5);
-            border-radius: 6px;
-          }
-          &::-webkit-scrollbar-track {
-            background-color: transparent;
-          }
+    var book: AbstractBook = book
+        set(value) {
+            field = value
+            field.spinner = jBIntSpinner
         }
-        </style>
-    """.trimIndent()
 
     init {
         val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
-        htmlPanel = JCEFHtmlPanel(context.serverUrl).apply{
-            setOpenLinksInExternalBrowser(true)
-        }
+        htmlPanel = JCEFHtmlPanel(context.serverUrl)
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
         toolbar.targetComponent = htmlPanel.component
         htmlPanel.component.add(toolbar.component, BorderLayout.NORTH)
@@ -65,13 +54,17 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, var book: A
     }
 
     override fun showReadContent() {
-        val content = book.doRead()
+        val content = this@HtmlReaderUI.book.doRead()
         val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
         htmlPanel.loadURL(context.serverUrl + "/$content")
     }
 
     override fun clearReadContent() {
         htmlPanel.setHtml("")
+    }
+
+    override fun globalSchemeChange(p0: EditorColorsScheme?) {
+        showReadContent()
     }
 
     fun createActionGroup(): DefaultActionGroup {
@@ -89,18 +82,21 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, var book: A
         return actionGroup
     }
 
+    fun pageChange(indexChange: Int) {
+        this.book.addPageIndex(indexChange)
+        showReadContent()
+    }
+
 
     inner class PrePageAction(name: String) : AnAction(name, "", General.ChevronLeft) {
         override fun actionPerformed(event: AnActionEvent) {
-            book.addPageIndex(-1)
-            showReadContent()
+            pageChange(-1)
         }
     }
 
     inner class NextPageAction(name: String) : AnAction(name, "", General.ChevronRight) {
         override fun actionPerformed(event: AnActionEvent) {
-            book.addPageIndex(1)
-            showReadContent()
+            pageChange(1)
         }
     }
 
@@ -126,8 +122,7 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, var book: A
     inner class JumpPageAction(name: String, icon: Icon, val intSpinner: JBIntSpinner) : AnAction(name, "", icon) {
         override fun actionPerformed(p0: AnActionEvent) {
             val value = intSpinner.value as Int
-            book.addPageIndex(value - book.pageIndex)
-            showReadContent()
+            pageChange(value - book.pageIndex)
         }
     }
 }

@@ -58,11 +58,13 @@ class ReaderToolWindowFactory: ToolWindowFactory, DumbAware {
             if (context.textReadConsole == null) {
                 context.textReadConsole = ReaderConsoleUI(project, toolWindow, book)
             }
+            context.textReadConsole!!.book = book
             return context.textReadConsole!!
         } else if (book.bookType == BookTypeEnum.EPUB_BOOK) {
             if (context.htmlReaderUI == null) {
                 context.htmlReaderUI = HtmlReaderUI(project, toolWindow, book)
             }
+            context.htmlReaderUI!!.book = book
             return context.htmlReaderUI!!
         }
         throw NotSupportedException("不支持的类型")

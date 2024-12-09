@@ -19,6 +19,8 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
 
     var autoTurnPage: Boolean = true
 
+    var overrideEpubFont:Boolean = false
+
 
     override fun getState(): SettingsState? {
         val settingPropertiesState = SettingsState()
@@ -46,5 +48,7 @@ class SettingsState : Serializable {
     var pageSize: Int = 3000
 
     var autoTurnPage: Boolean = true
+
+    var overrideEpubFont:Boolean = false
 
 }

@@ -26,7 +26,8 @@ class ReaderSettingConfigurable: SearchableConfigurable {
         return properties.fontSize != settingsUI?.fontSize ||
                 properties.pageSize != settingsUI?.pageSize ||
                 properties.fontFamily != settingsUI?.fontFamily ||
-                properties.autoTurnPage != settingsUI?.autoTurnPage
+                properties.autoTurnPage != settingsUI?.autoTurnPage ||
+                properties.overrideEpubFont != settingsUI?.overrideEpubFont
     }
 
     override fun createComponent(): JComponent? {
@@ -41,6 +42,7 @@ class ReaderSettingConfigurable: SearchableConfigurable {
         properties.fontSize = settingsUI?.fontSize ?: properties.fontSize
         properties.fontFamily = settingsUI?.fontFamily ?: properties.fontFamily
         properties.autoTurnPage = settingsUI?.autoTurnPage ?: properties.autoTurnPage
+        properties.overrideEpubFont = settingsUI?.overrideEpubFont ?: properties.overrideEpubFont
         if (settingsUI?.pageSize != properties.pageSize) {
             properties.pageSize = settingsUI?.pageSize ?: properties.pageSize
             val bookshelves = ApplicationManager.getApplication().getService(Bookshelves::class.java)

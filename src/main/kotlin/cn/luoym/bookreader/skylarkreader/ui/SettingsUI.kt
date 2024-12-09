@@ -14,16 +14,18 @@ import java.awt.GraphicsEnvironment
 import java.awt.event.ItemEvent
 import java.awt.event.ItemListener
 import javax.swing.JCheckBox
-import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.JSpinner
 import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 
 class SettingsUI {
-    val settings: JPanel = JPanel(GridLayoutManager(4, 6, JBUI.emptyInsets(), -1, -1, false, false))
+    val settings: JPanel = JPanel(GridLayoutManager(5, 6, JBUI.emptyInsets(), -1, -1, false, false))
 
     lateinit var fontFamilyLabel: JBLabel
+
+    lateinit var fontFamily: String
+
 
     lateinit var fontSelect: ComboBox<String>
 
@@ -37,13 +39,15 @@ class SettingsUI {
 
     lateinit var autoTurnPageBox: JCheckBox
 
-    lateinit var fontFamily: String
+    lateinit var overrideEpubFontBox: JCheckBox
 
     var fontSize: Int = 13
 
     var pageSize: Int = 3000
 
     var autoTurnPage = false
+
+    var overrideEpubFont = false
 
     init {
         settingProperties()
@@ -138,6 +142,7 @@ class SettingsUI {
             Dimension(200, -1)))
 
         autoTurnPageBox = JCheckBox("阅读到页底时是否自动翻页")
+        autoTurnPageBox.isSelected = autoTurnPage
         settings.add(autoTurnPageBox, GridConstraints().apply {
             row = 2
             column = 0
@@ -148,8 +153,20 @@ class SettingsUI {
             vSizePolicy = 0
         })
 
-        settings.add(Spacer(), GridConstraints().apply {
+        overrideEpubFontBox = JCheckBox("覆盖epub电子书内的字体样式")
+        overrideEpubFontBox.isSelected = overrideEpubFont
+        settings.add(overrideEpubFontBox, GridConstraints().apply {
             row = 3
+            column = 0
+            rowSpan = 1
+            colSpan = 4
+            anchor = GridConstraints.ANCHOR_WEST
+            hSizePolicy = 0
+            vSizePolicy = 0
+        })
+
+        settings.add(Spacer(), GridConstraints().apply {
+            row = 4
             column = 2
             rowSpan = 1
             colSpan = 2
@@ -179,6 +196,10 @@ class SettingsUI {
         autoTurnPageBox.addChangeListener(ChangeListener { e: ChangeEvent? ->
             autoTurnPage = autoTurnPageBox.isSelected
         })
+
+        overrideEpubFontBox.addChangeListener(ChangeListener { e: ChangeEvent? ->
+            overrideEpubFont = overrideEpubFontBox.isSelected
+        })
     }
 
     fun settingProperties() {
@@ -188,5 +209,6 @@ class SettingsUI {
         fontSize = properties.fontSize
         autoTurnPage = properties.autoTurnPage
         fontFamily = properties.fontFamily
+        overrideEpubFont = properties.overrideEpubFont
     }
 }

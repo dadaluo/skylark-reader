@@ -16,7 +16,6 @@ import io.netty.handler.codec.http.QueryStringDecoder
 import org.jetbrains.ide.HttpRequestHandler
 import org.jetbrains.io.response
 import org.jetbrains.io.send
-import org.jsoup.nodes.DataNode
 import org.jsoup.nodes.Document
 import org.jsoup.parser.ParseSettings
 import org.jsoup.parser.Parser
@@ -54,7 +53,7 @@ class EpubResourceStaticServer: HttpRequestHandler() {
             val contentType = resource.mediaType.name
             var bytes = resource.data
             if (MediaTypes.XHTML.equals(resource.mediaType)) {
-                bytes = rebuildHtml(bytes)
+                bytes = addStyle(bytes)
             }
             sendResponse(bytes, contentType, request, context)
             return true
@@ -83,8 +82,12 @@ class EpubResourceStaticServer: HttpRequestHandler() {
     }
 
 
-    fun rebuildHtml(data: ByteArray): ByteArray {
-        val html = String(data, Charsets.UTF_8)
+    fun addStyle(data: ByteArray): ByteArray {
+        var html = String(data, Charsets.UTF_8)
+        val settings = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
+        if (settings.overrideEpubFont) {
+            html = html.replace("font-family", "font-family-old", true).replace("font-size", "font-size-old", true)
+        }
         val htmlParser = Parser.htmlParser()
         htmlParser.settings(ParseSettings(false, false))
         val document = htmlParser.parseInput(html, "")

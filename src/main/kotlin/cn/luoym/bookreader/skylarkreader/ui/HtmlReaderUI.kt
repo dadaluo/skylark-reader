@@ -68,7 +68,7 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
 
     fun createActionGroup(): DefaultActionGroup {
         val actionGroup = DefaultActionGroup()
-        actionGroup.add(ReaderUIExitAction("Exit"))
+        actionGroup.add(ReaderUIExitAction("Exit", this))
         actionGroup.add(PrePageAction("PrePage"))
         actionGroup.add(NextPageAction("NextPage"))
         actionGroup.add(ClearThisConsoleAction("Clear"))

@@ -105,7 +105,7 @@ class ReaderConsoleUI(
 
     fun createActionGroup(): DefaultActionGroup {
         val actionGroup = DefaultActionGroup()
-        actionGroup.add(ReaderUIExitAction("Exit"))
+        actionGroup.add(ReaderUIExitAction("Exit", this))
         actionGroup.add(PrePageAction("PrePage"))
         actionGroup.add(NextPageAction("NextPage"))
         val switchSoftWrapsAction: AnAction =

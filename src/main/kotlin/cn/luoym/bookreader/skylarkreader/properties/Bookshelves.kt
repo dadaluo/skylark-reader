@@ -1,6 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.properties
 
-import cn.luoym.bookreader.skylarkreader.BookTypeEnum
+import cn.luoym.bookreader.skylarkreader.book.BookTypeEnum
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
 import cn.luoym.bookreader.skylarkreader.book.EpubBook
 import cn.luoym.bookreader.skylarkreader.book.TextBook
@@ -88,12 +88,12 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
         bookshelves.values.forEach {
             if (it is TextBook){
                 bookshelvesState.bookStateMap[it.id] = BookState(
-                    it.id, it.bookName, it.index, it.fontSize, it.path,
+                    it.id, it.bookName, it.index,  it.path,
                     BookTypeEnum.TEXT_BOOK
                 )
             } else if (it is EpubBook) {
                 bookshelvesState.bookStateMap[it.id] = BookState(
-                    it.id, it.bookName, it.pageIndex, it.fontSize, it.path,
+                    it.id, it.bookName, it.pageIndex,  it.path,
                     BookTypeEnum.EPUB_BOOK
                 )
             }
@@ -146,8 +146,6 @@ class BookState : Serializable {
     @Attribute
     var index: Int? = null
     @Attribute
-    var fontSize: Int? = null
-    @Attribute
     var path: String? = null
 
     @Attribute
@@ -155,10 +153,9 @@ class BookState : Serializable {
 
     constructor()
 
-    constructor(id: Long, bookName: String, index: Int, fontSize: Int, path: String, bookType: BookTypeEnum) {
+    constructor(id: Long, bookName: String, index: Int,  path: String, bookType: BookTypeEnum) {
         this.id = id
         this.bookName = bookName
-        this.fontSize = fontSize
         this.index = index
         this.path = path
         this.bookType = bookType

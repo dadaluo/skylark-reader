@@ -1,6 +1,5 @@
 package cn.luoym.bookreader.skylarkreader.book
 
-import cn.luoym.bookreader.skylarkreader.BookTypeEnum
 import cn.luoym.bookreader.skylarkreader.properties.BookState
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import com.intellij.openapi.application.ApplicationManager
@@ -44,7 +43,6 @@ class EpubBook(path: String) : AbstractBook() {
         bookName = bookState.bookName!!
         pageIndex = bookState.index!!
         path = bookState.path!!
-        fontSize = bookState.fontSize!!
     }
 
     override fun doRead(): String {

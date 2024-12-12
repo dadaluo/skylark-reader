@@ -4,6 +4,12 @@ import cn.luoym.bookreader.skylarkreader.book.EpubBook
 import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
 import cn.luoym.bookreader.skylarkreader.properties.Constants
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
+import com.helger.css.ECSSVersion
+import com.helger.css.decl.CSSExpression
+import com.helger.css.decl.CSSExpressionMemberTermSimple
+import com.helger.css.decl.CSSStyleRule
+import com.helger.css.reader.CSSReader
+import com.helger.css.writer.CSSWriter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.ui.UIUtil
@@ -52,8 +58,12 @@ class EpubResourceStaticServer: HttpRequestHandler() {
             }
             val contentType = resource.mediaType.name
             var bytes = resource.data
+            val settings =
+                ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
             if (MediaTypes.XHTML.equals(resource.mediaType)) {
-                bytes = addStyle(bytes)
+                bytes = addStyle(bytes, settings)
+            } else if (MediaTypes.CSS.equals(resource.mediaType) && (settings.overrideEpubFontFamily || settings.overrideEpubFontSize)) {
+                bytes = changeCSSFontStyle(bytes, settings)
             }
             sendResponse(bytes, contentType, request, context)
             return true
@@ -82,11 +92,13 @@ class EpubResourceStaticServer: HttpRequestHandler() {
     }
 
 
-    fun addStyle(data: ByteArray): ByteArray {
+    fun addStyle(data: ByteArray, settings: SettingProperties): ByteArray {
         var html = String(data, Charsets.UTF_8)
-        val settings = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
-        if (settings.overrideEpubFont) {
-            html = html.replace("font-family", "font-family-old", true).replace("font-size", "font-size-old", true)
+        if (settings.overrideEpubFontFamily) {
+            html = html.replace(Constants.FONT_FAMILY_NAME, "font-family-old", true)
+        }
+        if (settings.overrideEpubFontSize) {
+            html = html.replace(Constants.FONT_SIZE_NAME, "font-size-old", true)
         }
         val htmlParser = Parser.htmlParser()
         htmlParser.settings(ParseSettings(false, false))
@@ -100,6 +112,37 @@ class EpubResourceStaticServer: HttpRequestHandler() {
             head[0].appendChildren(nodes)
         }
         return document.html().toByteArray(Charsets.UTF_8)
+    }
+
+    fun changeCSSFontStyle(data: ByteArray, settings: SettingProperties): ByteArray {
+        var cssFile = String(data, Charsets.UTF_8)
+        val styleSheet = CSSReader.readFromString(cssFile, ECSSVersion.LATEST)
+        if (styleSheet == null) {
+            return data
+        }
+        val rules = styleSheet.allRules
+        rules.forEach { rule ->
+            if (rule is CSSStyleRule) {
+                val declarations = rule.allDeclarations
+                declarations.forEach { declaration ->
+                    if (declaration.property.startsWith(Constants.FONT_FAMILY_NAME) && settings.overrideEpubFontFamily) {
+                        val expression = CSSExpression()
+                        val term = CSSExpressionMemberTermSimple("'${settings.fontFamily}'")
+                        expression.addMember(term)
+                        declaration.setExpression(expression)
+                    } else if (declaration.property.startsWith(Constants.FONT_SIZE_NAME) && settings.overrideEpubFontSize) {
+                        val expression = declaration.expression
+                        val member = expression.getMemberAtIndex(0)
+                        if (member != null && member is CSSExpressionMemberTermSimple && member.value.endsWith(Constants.FONT_SIZE_SUFFIX)) {
+                            member.value = "${settings.fontSize}${Constants.FONT_SIZE_SUFFIX}"
+                        }
+                    }
+                }
+            }
+        }
+        val cssWriter = CSSWriter()
+        val cssAsString = cssWriter.getCSSAsString(styleSheet)
+        return cssAsString.toByteArray(Charsets.UTF_8)
     }
 
 

@@ -1,6 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.toolwindows
 
-import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
+import cn.luoym.bookreader.skylarkreader.message.SettingsChangedNotifier
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import cn.luoym.bookreader.skylarkreader.ui.SettingsUI
 import com.intellij.openapi.application.ApplicationManager
@@ -23,11 +23,10 @@ class ReaderSettingConfigurable: SearchableConfigurable {
 
     override fun isModified(): Boolean {
         val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
-        return properties.fontSize != settingsUI?.fontSize ||
-                properties.pageSize != settingsUI?.pageSize ||
-                properties.fontFamily != settingsUI?.fontFamily ||
+        return fontStyleIsModified(properties) ||
+                pageSizeIsModified(properties) ||
                 properties.autoTurnPage != settingsUI?.autoTurnPage ||
-                properties.overrideEpubFont != settingsUI?.overrideEpubFont
+                epubBookFontStyleIsModified(properties)
     }
 
     override fun createComponent(): JComponent? {
@@ -39,14 +38,65 @@ class ReaderSettingConfigurable: SearchableConfigurable {
 
     override fun apply() {
         val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
-        properties.fontSize = settingsUI?.fontSize ?: properties.fontSize
-        properties.fontFamily = settingsUI?.fontFamily ?: properties.fontFamily
         properties.autoTurnPage = settingsUI?.autoTurnPage ?: properties.autoTurnPage
-        properties.overrideEpubFont = settingsUI?.overrideEpubFont ?: properties.overrideEpubFont
-        if (settingsUI?.pageSize != properties.pageSize) {
+
+        val pageSizeIsModified = pageSizeIsModified(properties)
+        if (pageSizeIsModified) {
             properties.pageSize = settingsUI?.pageSize ?: properties.pageSize
-            val bookshelves = ApplicationManager.getApplication().getService(Bookshelves::class.java)
-            bookshelves.resetBookPageIndex()
         }
+
+        val fontStyleIsModified = fontStyleIsModified(properties)
+        if (fontStyleIsModified) {
+            properties.fontSize = settingsUI?.fontSize ?: properties.fontSize
+            properties.fontFamily = settingsUI?.fontFamily ?: properties.fontFamily
+        }
+
+        val epubBookFontStyleIsModified = epubBookFontStyleIsModified(properties)
+        if (epubBookFontStyleIsModified) {
+            properties.overrideEpubFontFamily = settingsUI?.overrideEpubFontFamily ?: properties.overrideEpubFontFamily
+            properties.overrideEpubFontSize = settingsUI?.overrideEpubFontSize ?: properties.overrideEpubFontSize
+        }
+
+        sendSettingsChangedMessage(properties, pageSizeIsModified, fontStyleIsModified, epubBookFontStyleIsModified)
+    }
+
+    fun sendSettingsChangedMessage(
+        properties: SettingProperties,
+        pageSizeIsModified: Boolean,
+        fontStyleIsModified: Boolean,
+        epubBookFontStyleIsModified: Boolean,
+    ) {
+        if (!pageSizeIsModified && !fontStyleIsModified && !epubBookFontStyleIsModified) {
+            return
+        }
+        val publisher =
+            ApplicationManager.getApplication().messageBus.syncPublisher(SettingsChangedNotifier.SETTINGS_CHANGED)
+        if (pageSizeIsModified) {
+            publisher.onPageSizeChanged()
+        }
+        if (fontStyleIsModified) {
+            publisher.onFontStyleChanged()
+        }
+        if (epubBookFontStyleIsModified || (fontStyleIsModified && (properties.overrideEpubFontSize || properties.overrideEpubFontFamily))) {
+            publisher.onEpubBookFontChanged()
+        }
+    }
+
+    fun pageSizeIsModified(properties: SettingProperties): Boolean {
+        return properties.pageSize != settingsUI?.pageSize
+    }
+
+    fun fontStyleIsModified(properties: SettingProperties): Boolean {
+        return properties.fontSize != settingsUI?.fontSize ||
+                properties.fontFamily != settingsUI?.fontFamily
+    }
+
+    fun epubBookFontStyleIsModified(properties: SettingProperties): Boolean {
+        return properties.overrideEpubFontFamily != settingsUI?.overrideEpubFontFamily ||
+                properties.overrideEpubFontSize != settingsUI?.overrideEpubFontSize
+    }
+
+    override fun reset() {
+        settingsUI?.settingProperties()
     }
 }

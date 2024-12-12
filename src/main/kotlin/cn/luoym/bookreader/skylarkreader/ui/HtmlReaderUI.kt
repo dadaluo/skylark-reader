@@ -12,8 +12,6 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.EditorColorsListener
-import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
@@ -66,14 +64,16 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
         htmlPanel.cefBrowser.reloadIgnoreCache()
     }
 
+    override fun updateFontStyle() {
+        reload()
+    }
+
     fun createActionGroup(): DefaultActionGroup {
         val actionGroup = DefaultActionGroup()
         actionGroup.add(ReaderUIExitAction("Exit", this))
         actionGroup.add(PrePageAction("PrePage"))
         actionGroup.add(NextPageAction("NextPage"))
         actionGroup.add(ClearThisConsoleAction("Clear"))
-        actionGroup.add(LargeFontSizeAction("LargerFont"))
-        actionGroup.add(SmallerFontSizeAction("SmallerFont"))
         jBIntSpinner = JBIntSpinner(book.pageIndex, 1, book.maxPageIndex, 1)
         val icon: Icon = IconLoader.getIcon("icon/JumpTo.svg", this::class.java)
         actionGroup.add(JumpPageAction("JumpTo", icon, jBIntSpinner))
@@ -102,19 +102,6 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
     inner class ClearThisConsoleAction(name: String) : AnAction(name, "", AllIcons.Actions.GC) {
         override fun actionPerformed(p0: AnActionEvent) {
             clearReadContent()
-        }
-    }
-
-    inner class LargeFontSizeAction(name: String) : AnAction(name, "", General.ZoomIn) {
-
-        override fun actionPerformed(p0: AnActionEvent) {
-
-        }
-    }
-
-    inner class SmallerFontSizeAction(name: String) : AnAction(name, "", General.ZoomOut) {
-        override fun actionPerformed(p0: AnActionEvent) {
-
         }
     }
 

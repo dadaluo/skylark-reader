@@ -1,6 +1,5 @@
 package cn.luoym.bookreader.skylarkreader.book
 
-import cn.luoym.bookreader.skylarkreader.BookTypeEnum
 import com.intellij.ui.JBIntSpinner
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -11,8 +10,6 @@ abstract class AbstractBook {
     var id: Long = 0
 
     lateinit var bookName: String
-
-    var fontSize: Int = 13
 
     lateinit var path: String
 

@@ -20,7 +20,7 @@ import javax.swing.event.ChangeEvent
 import javax.swing.event.ChangeListener
 
 class SettingsUI {
-    val settings: JPanel = JPanel(GridLayoutManager(5, 6, JBUI.emptyInsets(), -1, -1, false, false))
+    val settings: JPanel = JPanel(GridLayoutManager(6, 6, JBUI.emptyInsets(), -1, -1, false, false))
 
     lateinit var fontFamilyLabel: JBLabel
 
@@ -39,7 +39,10 @@ class SettingsUI {
 
     lateinit var autoTurnPageBox: JCheckBox
 
-    lateinit var overrideEpubFontBox: JCheckBox
+    lateinit var overrideEpubFontFamilyBox: JCheckBox
+
+    lateinit var overrideEpubFontSizeBox: JCheckBox
+
 
     var fontSize: Int = 13
 
@@ -47,7 +50,9 @@ class SettingsUI {
 
     var autoTurnPage = false
 
-    var overrideEpubFont = false
+    var overrideEpubFontFamily = false
+
+    var overrideEpubFontSize = false
 
     init {
         settingProperties()
@@ -153,9 +158,9 @@ class SettingsUI {
             vSizePolicy = 0
         })
 
-        overrideEpubFontBox = JCheckBox("覆盖epub电子书内的字体样式")
-        overrideEpubFontBox.isSelected = overrideEpubFont
-        settings.add(overrideEpubFontBox, GridConstraints().apply {
+        overrideEpubFontFamilyBox = JCheckBox("覆盖epub电子书内的字体样式")
+        overrideEpubFontFamilyBox.isSelected = overrideEpubFontFamily
+        settings.add(overrideEpubFontFamilyBox, GridConstraints().apply {
             row = 3
             column = 0
             rowSpan = 1
@@ -165,8 +170,20 @@ class SettingsUI {
             vSizePolicy = 0
         })
 
-        settings.add(Spacer(), GridConstraints().apply {
+        overrideEpubFontSizeBox = JCheckBox("覆盖epub电子书内的字体大小（可能会导致电子书页面排版混乱！）")
+        overrideEpubFontSizeBox.isSelected = overrideEpubFontSize
+        settings.add(overrideEpubFontSizeBox, GridConstraints().apply {
             row = 4
+            column = 0
+            rowSpan = 1
+            colSpan = 4
+            anchor = GridConstraints.ANCHOR_WEST
+            hSizePolicy = 0
+            vSizePolicy = 0
+        })
+
+        settings.add(Spacer(), GridConstraints().apply {
+            row = 5
             column = 2
             rowSpan = 1
             colSpan = 2
@@ -197,8 +214,12 @@ class SettingsUI {
             autoTurnPage = autoTurnPageBox.isSelected
         })
 
-        overrideEpubFontBox.addChangeListener(ChangeListener { e: ChangeEvent? ->
-            overrideEpubFont = overrideEpubFontBox.isSelected
+        overrideEpubFontFamilyBox.addChangeListener(ChangeListener { e: ChangeEvent? ->
+            overrideEpubFontFamily = overrideEpubFontFamilyBox.isSelected
+        })
+
+        overrideEpubFontSizeBox.addChangeListener(ChangeListener { e: ChangeEvent? ->
+            overrideEpubFontSize = overrideEpubFontSizeBox.isSelected
         })
     }
 
@@ -209,6 +230,7 @@ class SettingsUI {
         fontSize = properties.fontSize
         autoTurnPage = properties.autoTurnPage
         fontFamily = properties.fontFamily
-        overrideEpubFont = properties.overrideEpubFont
+        overrideEpubFontFamily = properties.overrideEpubFontFamily
+        overrideEpubFontSize = properties.overrideEpubFontSize
     }
 }

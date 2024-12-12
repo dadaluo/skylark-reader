@@ -33,5 +33,8 @@
     <applicationListeners>
         <listener class="cn.luoym.bookreader.skylarkreader.listener.WebPageColorHandler"
                   topic="com.intellij.openapi.editor.colors.EditorColorsListener"/>
+        <listener
+                class="cn.luoym.bookreader.skylarkreader.listener.SettingChangedHandler"
+                topic="cn.luoym.bookreader.skylarkreader.message.SettingsChangedNotifier"/>
     </applicationListeners>
 </idea-plugin>

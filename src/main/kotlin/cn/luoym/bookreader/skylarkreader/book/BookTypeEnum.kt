@@ -1,4 +1,4 @@
-package cn.luoym.bookreader.skylarkreader
+package cn.luoym.bookreader.skylarkreader.book
 
 enum class BookTypeEnum {
 

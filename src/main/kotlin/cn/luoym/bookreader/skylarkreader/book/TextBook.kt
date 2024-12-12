@@ -1,6 +1,5 @@
 package cn.luoym.bookreader.skylarkreader.book
 
-import cn.luoym.bookreader.skylarkreader.BookTypeEnum
 import cn.luoym.bookreader.skylarkreader.properties.BookState
 import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
 import com.intellij.openapi.application.ApplicationManager
@@ -30,7 +29,6 @@ class TextBook(path: String) : AbstractBook() {
         randomAccessFile = BufferedRandomAccessFile(file, "r", properties.pageSize * 10)
         maxPageIndex = randomAccessFile.length().div(properties.pageSize).toInt() + 1
         bookName = file.name
-        fontSize = properties.fontSize
     }
 
     constructor(bookState: BookState) : this(bookState.path!!) {
@@ -38,7 +36,6 @@ class TextBook(path: String) : AbstractBook() {
         bookName = bookState.bookName!!
         index = bookState.index!!
         path = bookState.path!!
-        fontSize = bookState.fontSize!!
         pageIndex = bookState.index!!.div(properties.pageSize).toInt() + 1
     }
 

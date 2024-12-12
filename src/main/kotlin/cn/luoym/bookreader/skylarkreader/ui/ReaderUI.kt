@@ -7,4 +7,5 @@ interface ReaderUI : PluginUI {
 
     fun clearReadContent()
 
+    fun updateFontStyle()
 }

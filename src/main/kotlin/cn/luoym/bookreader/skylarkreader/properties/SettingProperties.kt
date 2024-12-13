@@ -4,6 +4,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.service
 import com.intellij.util.xmlb.annotations.Attribute
 import java.io.Serializable
 
@@ -23,6 +24,11 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
     var overrideEpubFontFamily: Boolean = false
 
     var overrideEpubFontSize: Boolean = false
+
+    companion object {
+        val instance: SettingProperties
+            get() = service()
+    }
 
 
     override fun getState(): SettingsState? {

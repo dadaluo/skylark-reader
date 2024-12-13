@@ -6,6 +6,7 @@ import cn.luoym.bookreader.skylarkreader.book.AbstractBook
 import cn.luoym.bookreader.skylarkreader.toolwindows.Context
 import com.intellij.icons.AllIcons
 import com.intellij.icons.AllIcons.General
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnAction
@@ -22,7 +23,7 @@ import com.intellij.ui.jcef.JCEFHtmlPanel
 import java.awt.BorderLayout
 import javax.swing.Icon
 
-class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI{
+class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI, Disposable{
 
     val htmlPanel: JCEFHtmlPanel
 
@@ -110,5 +111,10 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
             val value = intSpinner.value as Int
             pageChange(value - book.pageIndex)
         }
+    }
+
+    override fun dispose() {
+        htmlPanel.dispose()
+        book.spinner = null
     }
 }

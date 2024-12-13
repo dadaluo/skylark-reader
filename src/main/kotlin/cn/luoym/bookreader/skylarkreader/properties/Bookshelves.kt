@@ -12,6 +12,7 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
+import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.xmlb.annotations.Attribute
 import java.io.File
@@ -22,6 +23,11 @@ import java.io.Serializable
 @Service
 @State(name = "Bookshelves", storages = [Storage(value = "SkylarkReaderBookshelves.xml")])
 class Bookshelves : PersistentStateComponent<Bookshelves.State> {
+
+    companion object {
+        val instance: Bookshelves
+            get() = service()
+    }
 
     private val log = logger<ConsoleViewImpl>()
 

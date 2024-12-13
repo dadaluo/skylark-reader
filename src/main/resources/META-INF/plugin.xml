@@ -25,8 +25,8 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="cn.luoym.bookreader.skylarkreader.toolwindows.ReaderToolWindowFactory"
-                    secondary="true" anchor="bottom" id="skylark-reader"/>
-        <applicationConfigurable groupId="tools" id="skylark-reader-settings" displayName="Skylark Reader" instance="cn.luoym.bookreader.skylarkreader.toolwindows.ReaderSettingConfigurable"/>
+                    secondary="true" anchor="bottom" id="skylark-reader" />
+        <applicationConfigurable id="skylark-reader-settings" displayName="Skylark Reader" instance="cn.luoym.bookreader.skylarkreader.toolwindows.ReaderSettingConfigurable"/>
         <notificationGroup displayType="BALLOON" id="skylark-reader-notification"/>
         <httpRequestHandler implementation="cn.luoym.bookreader.skylarkreader.jcef.EpubResourceStaticServer"/>
     </extensions>

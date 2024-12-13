@@ -1,5 +1,7 @@
 package cn.luoym.bookreader.skylarkreader.properties
 
+import com.intellij.openapi.util.IconLoader
+
 class Constants {
     companion object {
         const val PLUGIN_NAME = "SkylarkReader"
@@ -16,5 +18,11 @@ class Constants {
         const val FONT_SIZE_SUFFIX = "px"
 
         const val SETTINGS_CHANGED_TOPIC = "skylarkReaderSettingsChangedTopic"
+
+        const val BUNDLE_NAME = "messages.MessageBundle"
+
+        @JvmStatic
+        val ICON = IconLoader.getIcon("icon/pluginIcon.svg", this::class.java)
+
     }
 }

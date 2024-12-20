@@ -1,7 +1,7 @@
-package cn.luoym.bookreader.skylarkreader.toolwindows
+package cn.luoym.bookreader.skylarkreader.extensions
 
 import cn.luoym.bookreader.skylarkreader.message.SettingsChangedNotifier
-import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
+import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
 import cn.luoym.bookreader.skylarkreader.ui.SettingsForm
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.options.SearchableConfigurable
@@ -22,11 +22,13 @@ class ReaderSettingConfigurable: SearchableConfigurable {
     }
 
     override fun isModified(): Boolean {
-        val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
+        val properties = ApplicationManager.getApplication().getService(SettingsProperties::class.java);
         return fontStyleIsModified(properties) ||
                 pageSizeIsModified(properties) ||
                 properties.autoTurnPage != settingsForm?.autoTurnPage?.get() ||
-                epubBookFontStyleIsModified(properties)
+                epubBookFontStyleIsModified(properties) ||
+                textReaderUIIsModified(properties) ||
+                properties.widgetPageSize != settingsForm?.widgetPageSize?.get()
     }
 
     override fun createComponent(): JComponent? {
@@ -37,7 +39,7 @@ class ReaderSettingConfigurable: SearchableConfigurable {
     }
 
     override fun apply() {
-        val properties = ApplicationManager.getApplication().getService(SettingProperties::class.java);
+        val properties = ApplicationManager.getApplication().getService(SettingsProperties::class.java);
         properties.autoTurnPage = settingsForm?.autoTurnPage?.get() ?: properties.autoTurnPage
 
         val pageSizeIsModified = pageSizeIsModified(properties)
@@ -56,12 +58,16 @@ class ReaderSettingConfigurable: SearchableConfigurable {
             properties.overrideEpubFontFamily = settingsForm?.overrideEpubFontFamily?.get() ?: properties.overrideEpubFontFamily
             properties.overrideEpubFontSize = settingsForm?.overrideEpubFontSize?.get() ?: properties.overrideEpubFontSize
         }
+        if (textReaderUIIsModified(properties)){
+            properties.textReaderUI = settingsForm?.textReaderUI?.get() ?: properties.textReaderUI
+        }
+        properties.widgetPageSize = settingsForm?.widgetPageSize?.get() ?: properties.widgetPageSize
 
         sendSettingsChangedMessage(properties, pageSizeIsModified, fontStyleIsModified, epubBookFontStyleIsModified)
     }
 
     fun sendSettingsChangedMessage(
-        properties: SettingProperties,
+        properties: SettingsProperties,
         pageSizeIsModified: Boolean,
         fontStyleIsModified: Boolean,
         epubBookFontStyleIsModified: Boolean,
@@ -82,18 +88,22 @@ class ReaderSettingConfigurable: SearchableConfigurable {
         }
     }
 
-    fun pageSizeIsModified(properties: SettingProperties): Boolean {
+    fun pageSizeIsModified(properties: SettingsProperties): Boolean {
         return properties.pageSize != settingsForm?.pageSize?.get()
     }
 
-    fun fontStyleIsModified(properties: SettingProperties): Boolean {
+    fun fontStyleIsModified(properties: SettingsProperties): Boolean {
         return properties.fontSize != settingsForm?.fontSize?.get() ||
                 properties.fontFamily != settingsForm?.fontFamily?.get()
     }
 
-    fun epubBookFontStyleIsModified(properties: SettingProperties): Boolean {
+    fun epubBookFontStyleIsModified(properties: SettingsProperties): Boolean {
         return properties.overrideEpubFontFamily != settingsForm?.overrideEpubFontFamily?.get() ||
                 properties.overrideEpubFontSize != settingsForm?.overrideEpubFontSize?.get()
+    }
+
+    fun textReaderUIIsModified(properties: SettingsProperties): Boolean {
+        return properties.textReaderUI != settingsForm?.textReaderUI?.get()
     }
 
     override fun reset() {

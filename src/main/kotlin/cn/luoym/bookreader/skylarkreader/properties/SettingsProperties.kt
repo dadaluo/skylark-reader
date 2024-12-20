@@ -5,13 +5,12 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
-import com.intellij.util.xmlb.annotations.Attribute
 import java.io.Serializable
 
 
 @Service
 @State(name = "SettingProperties", storages = [Storage(value = "SkylarkReaderSettings.xml")])
-class SettingProperties : PersistentStateComponent<SettingsState> {
+class SettingsProperties : PersistentStateComponent<SettingsState> {
 
     var fontFamily: String = "黑体"
 
@@ -25,8 +24,12 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
 
     var overrideEpubFontSize: Boolean = false
 
+    var textReaderUI: TextReaderUIEnum = TextReaderUIEnum.STATUS_BAR_WIDGET
+
+    var widgetPageSize: Int = 500
+
     companion object {
-        val instance: SettingProperties
+        val instance: SettingsProperties
             get() = service()
     }
 
@@ -40,6 +43,8 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
             autoTurnPage = settings.autoTurnPage
             overrideEpubFontFamily = settings.overrideEpubFontFamily
             overrideEpubFontSize = settings.overrideEpubFontSize
+            textReaderUI = settings.textReaderUI
+            widgetPageSize = settings.widgetPageSize
         }
         return settingPropertiesState
     }
@@ -51,6 +56,8 @@ class SettingProperties : PersistentStateComponent<SettingsState> {
         autoTurnPage = p0.autoTurnPage?: autoTurnPage
         overrideEpubFontFamily = p0.overrideEpubFontFamily ?: overrideEpubFontFamily
         overrideEpubFontSize = p0.overrideEpubFontSize ?: overrideEpubFontSize
+        textReaderUI = p0.textReaderUI ?: textReaderUI
+        widgetPageSize = p0.widgetPageSize ?: widgetPageSize
     }
 }
 
@@ -67,5 +74,17 @@ class SettingsState : Serializable {
     var overrideEpubFontFamily:Boolean? = null
 
     var overrideEpubFontSize: Boolean? = null
+
+    var textReaderUI: TextReaderUIEnum? = null
+
+    var widgetPageSize: Int? = null
+
+}
+
+enum class TextReaderUIEnum {
+
+    CONSOLE,
+
+    STATUS_BAR_WIDGET
 
 }

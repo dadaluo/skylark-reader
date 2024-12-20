@@ -3,7 +3,7 @@ package cn.luoym.bookreader.skylarkreader.ui
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
 import cn.luoym.bookreader.skylarkreader.listener.MouseEventHandler
 import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
-import cn.luoym.bookreader.skylarkreader.toolwindows.Context
+import cn.luoym.bookreader.skylarkreader.extensions.Context
 import cn.luoym.bookreader.skylarkreader.utils.sendNotify
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationType
@@ -25,7 +25,6 @@ import com.intellij.ui.content.ContentFactory
 import com.jgoodies.common.collect.ArrayListModel
 import java.awt.BorderLayout
 import java.awt.event.MouseListener
-import java.text.DecimalFormat
 import java.util.function.Consumer
 import javax.swing.JPanel
 import javax.swing.ListModel
@@ -57,7 +56,7 @@ class BookshelvesUI : PluginUI {
         val handler = MouseEventHandler()
         handler.mouseClicked = Consumer {
             if (it.clickCount >= 2) {
-                val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
+                val context = Context.instance
                 val currentSelect = jbList.selectedValue
                 context.currentBook= currentSelect
                 context.readerToolWindowFactory.showReaderConsole(currentSelect)
@@ -75,7 +74,7 @@ class BookshelvesUI : PluginUI {
     }
 
     fun refreshShelves() {
-        val bookshelves = ApplicationManager.getApplication().getService<Bookshelves>(Bookshelves::class.java)
+        val bookshelves = Bookshelves.instance
         listMode.clear()
         jbList.model = listMode as ListModel<AbstractBook>
         bookshelves.bookshelves.forEach {
@@ -91,7 +90,7 @@ class BookshelvesUI : PluginUI {
         override fun actionPerformed(p0: AnActionEvent) {
             val descriptor = FileChooserDescriptor(true, false, false, false, false, true)
             val project = ProjectManager.getInstance().defaultProject
-            val bookshelves = ApplicationManager.getApplication().getService<Bookshelves>(Bookshelves::class.java)
+            val bookshelves = Bookshelves.instance
             FileChooser.chooseFiles(descriptor, project, project.workspaceFile) {
                 it.forEach {
                     bookshelves.addBook(it.path)
@@ -109,7 +108,7 @@ class BookshelvesUI : PluginUI {
                 sendNotify("请选择要删除的选项", NotificationType.WARNING)
                 return
             }
-            val bookshelves = ApplicationManager.getApplication().getService<Bookshelves>(Bookshelves::class.java)
+            val bookshelves = Bookshelves.instance
             bookshelves.removeBook(currentSelect)
             refreshShelves()
         }
@@ -122,7 +121,7 @@ class BookshelvesUI : PluginUI {
                 sendNotify("请选择要读的书", NotificationType.WARNING)
                 return
             }
-            val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
+            val context = Context.instance
             context.currentBook= currentSelect
             context.readerToolWindowFactory.showReaderConsole(currentSelect)
         }

@@ -1,21 +1,25 @@
 package cn.luoym.bookreader.skylarkreader.ui
 
-import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
+import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
+import cn.luoym.bookreader.skylarkreader.properties.TextReaderUIEnum
 import cn.luoym.bookreader.skylarkreader.utils.ReaderBundle
 import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindIntText
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.layout.ComponentPredicate
 import java.awt.BorderLayout
 import java.awt.GraphicsEnvironment
+import javax.swing.DefaultComboBoxModel
 import javax.swing.JPanel
 
 class SettingsForm : JPanel() {
 
     private val settings
-        get() = SettingProperties.instance
+        get() = SettingsProperties.instance
 
     private val properties = PropertyGraph()
 
@@ -30,6 +34,11 @@ class SettingsForm : JPanel() {
     var overrideEpubFontFamily = properties.property(settings.overrideEpubFontFamily)
 
     var overrideEpubFontSize = properties.property(settings.overrideEpubFontSize)
+
+    var textReaderUI = properties.property(settings.textReaderUI)
+
+    var widgetPageSize = properties.property(settings.widgetPageSize)
+
 
     private val fontStyleGroup = panel {
         group("Font Style") {
@@ -46,14 +55,34 @@ class SettingsForm : JPanel() {
 
     private val texConsoleGroup = panel {
         group("Text Reader") {
-            row {
-                checkBox(ReaderBundle.message("skylark.reader.settings.auto.turn.page"))
-                    .bindSelected(autoTurnPage)
+
+            row(ReaderBundle.message("skylark.reader.settings.text.reader.show.ui")) {
+                var cellRenderer = SimpleListCellRenderer.create<TextReaderUIEnum> { label, value, _ ->
+                    label.text = when (value) {
+                        TextReaderUIEnum.CONSOLE -> ReaderBundle.message("skylark.reader.settings.text.show.console")
+                        TextReaderUIEnum.STATUS_BAR_WIDGET -> ReaderBundle.message("skylark.reader.settings.text.show.status.bar.widget")
+                    }
+                }
+                comboBox(DefaultComboBoxModel(TextReaderUIEnum.entries.toTypedArray()), cellRenderer)
+                    .bindItem(textReaderUI)
             }
-            row(ReaderBundle.message("skylark.reader.settings.page.size")) {
-                intTextField(1000..10000, 500)
+            val consolePredicate = ShowReadUIComponentPredicate(TextReaderUIEnum.CONSOLE)
+            row {
+                checkBox(ReaderBundle.message("skylark.reader.settings.text.console.auto.turn.page"))
+                    .bindSelected(autoTurnPage)
+                    .enabledIf(consolePredicate)
+            }
+            row(ReaderBundle.message("skylark.reader.settings.text.console.page.size")) {
+                intTextField(1000..10000, 1)
                     .bindIntText(pageSize)
-                    .comment(ReaderBundle.message("skylark.reader.settings.page.size.comment"))
+                    .comment(ReaderBundle.message("skylark.reader.settings.text.console.page.size.comment"))
+                    .enabledIf(consolePredicate)
+            }
+            row(ReaderBundle.message("skylark.reader.settings.text.widget.page.size")) {
+                intTextField(50..1000, 1)
+                    .bindIntText(widgetPageSize)
+                    .comment(ReaderBundle.message("skylark.reader.settings.text.widget.page.size.comment"))
+                    .enabledIf(ShowReadUIComponentPredicate(TextReaderUIEnum.STATUS_BAR_WIDGET))
             }
         }
     }
@@ -89,5 +118,17 @@ class SettingsForm : JPanel() {
         autoTurnPage.set(settings.autoTurnPage)
         overrideEpubFontFamily.set(settings.overrideEpubFontFamily)
         overrideEpubFontSize.set(settings.overrideEpubFontSize)
+        textReaderUI.set(settings.textReaderUI)
+        widgetPageSize.set(settings.widgetPageSize)
+    }
+
+    inner class ShowReadUIComponentPredicate(val textReaderUIEnum: TextReaderUIEnum) : ComponentPredicate() {
+        override fun addListener(listener: (Boolean) -> Unit) {
+            return textReaderUI.afterChange { listener(it == textReaderUIEnum) }
+        }
+
+        override fun invoke(): Boolean {
+            return textReaderUI.get() == textReaderUIEnum
+        }
     }
 }

@@ -6,7 +6,6 @@ class Constants {
     companion object {
         const val PLUGIN_NAME = "SkylarkReader"
 
-
         const val LOCAL_RESOURCE = "sr-local/"
 
         const val SCROLLBAR_CSS = "<link href=\"/SkylarkReader/sr-local/css/scrollbar.css\" rel=\"stylesheet\" type=\"text/css\"/>"
@@ -21,8 +20,11 @@ class Constants {
 
         const val BUNDLE_NAME = "messages.MessageBundle"
 
-        @JvmStatic
-        val ICON = IconLoader.getIcon("icon/pluginIcon.svg", this::class.java)
+        const val ACTION_GROUP_ID = "skylark-reader-action-group"
+
+        const val STATUS_BAR_WEDGET_ID = "skylark-reader-status-bar-widget"
+
+        const val STATUS_BAR_ID = "skylark-reader-status-bar"
 
     }
 }

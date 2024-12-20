@@ -1,7 +1,6 @@
 package cn.luoym.bookreader.skylarkreader.ui
 
-import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
-import com.intellij.openapi.application.ApplicationManager
+import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.JBIntSpinner
 import com.intellij.ui.components.JBLabel
@@ -225,7 +224,7 @@ class SettingsUI {
 
     fun settingProperties() {
         val properties =
-            ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
+            SettingsProperties.instance
         pageSize = properties.pageSize
         fontSize = properties.fontSize
         autoTurnPage = properties.autoTurnPage

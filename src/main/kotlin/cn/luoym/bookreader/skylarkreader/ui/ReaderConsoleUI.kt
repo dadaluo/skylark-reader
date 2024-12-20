@@ -2,8 +2,9 @@ package cn.luoym.bookreader.skylarkreader.ui
 
 import cn.luoym.bookreader.skylarkreader.action.InputPageAction
 import cn.luoym.bookreader.skylarkreader.action.ReaderUIExitAction
-import cn.luoym.bookreader.skylarkreader.book.AbstractBook
-import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
+import cn.luoym.bookreader.skylarkreader.book.TextBook
+import cn.luoym.bookreader.skylarkreader.extensions.Context
+import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
 import com.intellij.codeWithMe.ClientId.Companion.currentOrNull
 import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.impl.ConsoleViewImpl
@@ -16,7 +17,6 @@ import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.ClientEditorManager
 import com.intellij.openapi.editor.Editor
@@ -37,20 +37,23 @@ import javax.swing.Icon
 class ReaderConsoleUI(
     project: Project,
     toolWindow: ToolWindow,
-    book: AbstractBook,
-) : ConsoleViewImpl(project,  GlobalSearchScope.projectScope(project), false, false), ReaderUI {
+    book: TextBook,
+) : ConsoleViewImpl(project,  GlobalSearchScope.projectScope(project), false, false), ReaderUI, PluginUI {
 
     private val log = logger<ConsoleViewImpl>()
 
-    var book: AbstractBook = book
+    var book: TextBook = book
         set(value){
             field = value
             field.spinner = jBIntSpinner
+            field.resetPageIndex()
         }
 
     private lateinit var jBIntSpinner:JBIntSpinner
 
     private var readerContent: Content
+
+    private var activated = false
 
     init {
         this.component
@@ -67,7 +70,7 @@ class ReaderConsoleUI(
 
     fun editorInit() {
         val properties =
-            ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
+            SettingsProperties.instance
         updateFontStyle()
         val editorx = this.editor
         if (editorx is EditorEx) {
@@ -88,11 +91,46 @@ class ReaderConsoleUI(
     }
 
     override fun showReadContent() {
+        activated = true
         pageChange(0, false)
     }
 
     override fun clearReadContent() {
         clear()
+    }
+
+    override fun isActive(): Boolean {
+        return activated
+    }
+
+    override fun exit() {
+        activated = true
+        clear()
+    }
+
+    override fun updateFontStyle() {
+        val properties =
+            SettingsProperties.instance
+        val scheme = this.editor?.colorsScheme
+        scheme?.editorFontName = properties.fontFamily
+        scheme?.editorFontSize = properties.fontSize
+    }
+
+    override fun nextPage() {
+        pageChange(1, true)
+    }
+
+    override fun prevPage() {
+        pageChange(-1, false)
+    }
+
+    override fun dispose() {
+        exit()
+        Context.instance.textReadConsole = null
+        if (Context.instance.currentReaderUI == this){
+            Context.instance.currentReaderUI = null
+        }
+        super.dispose()
     }
 
     fun createActionGroup(): DefaultActionGroup {
@@ -134,14 +172,6 @@ class ReaderConsoleUI(
             myCancelStickToEnd = true
             print(read, ConsoleViewContentType.NORMAL_OUTPUT)
         }
-    }
-
-    override fun updateFontStyle() {
-        val properties =
-            ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
-        val scheme = this.editor.colorsScheme
-        scheme.editorFontName = properties.fontFamily
-        scheme.editorFontSize = properties.fontSize
     }
 
     class ClearThisConsoleAction(val myConsoleView: ConsoleView) : ClearConsoleAction() {

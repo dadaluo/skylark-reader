@@ -3,7 +3,7 @@ package cn.luoym.bookreader.skylarkreader.ui
 import cn.luoym.bookreader.skylarkreader.action.InputPageAction
 import cn.luoym.bookreader.skylarkreader.action.ReaderUIExitAction
 import cn.luoym.bookreader.skylarkreader.book.AbstractBook
-import cn.luoym.bookreader.skylarkreader.toolwindows.Context
+import cn.luoym.bookreader.skylarkreader.extensions.Context
 import com.intellij.icons.AllIcons
 import com.intellij.icons.AllIcons.General
 import com.intellij.openapi.Disposable
@@ -12,7 +12,6 @@ import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.wm.ToolWindow
@@ -23,13 +22,15 @@ import com.intellij.ui.jcef.JCEFHtmlPanel
 import java.awt.BorderLayout
 import javax.swing.Icon
 
-class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI, Disposable{
+class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI, Disposable, PluginUI{
 
     val htmlPanel: JCEFHtmlPanel
 
     private lateinit var jBIntSpinner: JBIntSpinner
 
     private val readerContent: Content
+
+    var activated: Boolean = false
 
     var book: AbstractBook = book
         set(value) {
@@ -38,7 +39,7 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
         }
 
     init {
-        val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
+        val context = Context.instance
         htmlPanel = JCEFHtmlPanel(context.serverUrl)
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
         toolbar.targetComponent = htmlPanel.component
@@ -52,8 +53,9 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
     }
 
     override fun showReadContent() {
+        activated = true
         val content = book.doRead()
-        val context = ApplicationManager.getApplication().getService<Context>(Context::class.java)
+        val context = Context.instance
         htmlPanel.loadURL(context.serverUrl + "/$content")
     }
 
@@ -67,6 +69,23 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
 
     override fun updateFontStyle() {
         reload()
+    }
+
+    override fun isActive(): Boolean {
+        return activated
+    }
+
+    override fun exit() {
+        activated = false
+        clearReadContent()
+    }
+
+    override fun nextPage() {
+        pageChange(1)
+    }
+
+    override fun prevPage() {
+        pageChange(-1)
     }
 
     fun createActionGroup(): DefaultActionGroup {
@@ -114,7 +133,12 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
     }
 
     override fun dispose() {
-        htmlPanel.dispose()
+        exit()
+        Context.instance.htmlReaderUI = null
+        if (Context.instance.currentReaderUI == this){
+            Context.instance.currentReaderUI = null
+        }
         book.spinner = null
+        htmlPanel.dispose()
     }
 }

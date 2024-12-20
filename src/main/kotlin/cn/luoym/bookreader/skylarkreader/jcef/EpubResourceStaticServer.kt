@@ -3,14 +3,13 @@ package cn.luoym.bookreader.skylarkreader.jcef
 import cn.luoym.bookreader.skylarkreader.book.EpubBook
 import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
 import cn.luoym.bookreader.skylarkreader.properties.Constants
-import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
+import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
 import com.helger.css.ECSSVersion
 import com.helger.css.decl.CSSExpression
 import com.helger.css.decl.CSSExpressionMemberTermSimple
 import com.helger.css.decl.CSSStyleRule
 import com.helger.css.reader.CSSReader
 import com.helger.css.writer.CSSWriter
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.util.ui.UIUtil
 import io.documentnode.epub4j.domain.MediaTypes
@@ -37,7 +36,7 @@ class EpubResourceStaticServer: HttpRequestHandler() {
         request: FullHttpRequest,
         context: ChannelHandlerContext
     ): Boolean {
-        val bookshelves = ApplicationManager.getApplication().getService<Bookshelves>(Bookshelves::class.java)
+        val bookshelves =Bookshelves.instance
         if (!urlDecoder.path().contains(Constants.PLUGIN_NAME)) {
             logger.info("not epub resource path. ${urlDecoder.path()}")
             return false
@@ -59,7 +58,7 @@ class EpubResourceStaticServer: HttpRequestHandler() {
             val contentType = resource.mediaType.name
             var bytes = resource.data
             val settings =
-                ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
+                SettingsProperties.instance
             if (MediaTypes.XHTML.equals(resource.mediaType)) {
                 bytes = addStyle(bytes, settings)
             } else if (MediaTypes.CSS.equals(resource.mediaType) && (settings.overrideEpubFontFamily || settings.overrideEpubFontSize)) {
@@ -92,7 +91,7 @@ class EpubResourceStaticServer: HttpRequestHandler() {
     }
 
 
-    fun addStyle(data: ByteArray, settings: SettingProperties): ByteArray {
+    fun addStyle(data: ByteArray, settings: SettingsProperties): ByteArray {
         var html = String(data, Charsets.UTF_8)
         if (settings.overrideEpubFontFamily) {
             html = html.replace(Constants.FONT_FAMILY_NAME, "font-family-old", true)
@@ -105,16 +104,16 @@ class EpubResourceStaticServer: HttpRequestHandler() {
         val document = htmlParser.parseInput(html, "")
         val body = document.body()
         body.attr("style", style())
-        document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
         val head = document.getElementsByTag("head")
         if (head.isNotEmpty()) {
             val nodes = Parser.parseXmlFragment(Constants.SCROLLBAR_CSS, "")
             head[0].appendChildren(nodes)
         }
+        document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
         return document.html().toByteArray(Charsets.UTF_8)
     }
 
-    fun changeCSSFontStyle(data: ByteArray, settings: SettingProperties): ByteArray {
+    fun changeCSSFontStyle(data: ByteArray, settings: SettingsProperties): ByteArray {
         var cssFile = String(data, Charsets.UTF_8)
         val styleSheet = CSSReader.readFromString(cssFile, ECSSVersion.LATEST)
         if (styleSheet == null) {
@@ -149,7 +148,7 @@ class EpubResourceStaticServer: HttpRequestHandler() {
     fun style(): String {
         val background = UIUtil.getPanelBackground()
         val foreground = UIUtil.getLabelForeground()
-        val settings = ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
+        val settings = SettingsProperties.instance
         return "background-color: rgba(${background.red}, ${background.green}, ${background.blue}, ${background.alpha});" +
                 " color: rgba(${foreground.red}, ${foreground.green}, ${foreground.blue}, ${foreground.alpha});" +
                 "font-family: '${settings.fontFamily}';" +

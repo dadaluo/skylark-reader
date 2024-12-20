@@ -1,33 +1,40 @@
 package cn.luoym.bookreader.skylarkreader.book
 
 import cn.luoym.bookreader.skylarkreader.properties.BookState
-import cn.luoym.bookreader.skylarkreader.properties.SettingProperties
-import com.intellij.openapi.application.ApplicationManager
+import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
+import cn.luoym.bookreader.skylarkreader.properties.TextReaderUIEnum
 import org.apache.fontbox.ttf.BufferedRandomAccessFile
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.RandomAccessFile
+import java.io.IOException
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.nio.charset.StandardCharsets
 import java.text.DecimalFormat
+import kotlin.math.max
+import kotlin.math.min
 
 class TextBook(path: String) : AbstractBook() {
-    val randomAccessFile: RandomAccessFile
-    val properties: SettingProperties
+
+    private val randomAccessFile: BufferedRandomAccessFile
+
+    private val properties: SettingsProperties
+
     var index = 0
+
+    var nexPageOffset = 0
+
 
     init {
         this.path = path
         this.bookType = BookTypeEnum.TEXT_BOOK
-        properties =
-            ApplicationManager.getApplication().getService<SettingProperties>(SettingProperties::class.java)
+        properties = SettingsProperties.instance
         val file = File(path)
         if (!file.exists() || !file.isFile) {
-            throw FileNotFoundException("文件${path}不存在！")
+            throw FileNotFoundException("文件 $path 不存在！")
         }
         randomAccessFile = BufferedRandomAccessFile(file, "r", properties.pageSize * 10)
-        maxPageIndex = randomAccessFile.length().div(properties.pageSize).toInt() + 1
+        maxPageIndex = calculateMaxPageIndex()
         bookName = file.name
     }
 
@@ -36,53 +43,84 @@ class TextBook(path: String) : AbstractBook() {
         bookName = bookState.bookName!!
         index = bookState.index!!
         path = bookState.path!!
-        pageIndex = bookState.index!!.div(properties.pageSize).toInt() + 1
+        resetPageIndex()
     }
 
-    fun resetPageIndex(){
+    private fun calculateMaxPageIndex(): Int {
+        return randomAccessFile.length().div(properties.pageSize).toInt() + 1
+    }
+
+    fun resetPageIndex() {
         pageIndex = index / properties.pageSize + 1
     }
 
-    fun getBookPosition(): Long {
+    fun getBookPosition(): Int {
         if (pageIndex > maxPageIndex) {
-            return index.toLong()
+            return index
         }
         index = (pageIndex - 1) * properties.pageSize
-        return index.toLong()
+        return index
     }
 
     override fun doRead(): String {
-        val bytes = ByteArray(properties.pageSize)
-        val position = getBookPosition()
-        randomAccessFile.seek(position)
-        randomAccessFile.read(bytes, 0, properties.pageSize)
+        val bookPosition = getBookPosition()
+        return readString(bookPosition, properties.pageSize)
+    }
+
+    fun readPageSize(textReaderUI: TextReaderUIEnum): Int {
+        return when (textReaderUI) {
+            TextReaderUIEnum.CONSOLE -> properties.pageSize
+            TextReaderUIEnum.STATUS_BAR_WIDGET -> properties.widgetPageSize
+        }
+    }
+
+    fun readCurrentPageContent(textReaderUI: TextReaderUIEnum): String {
+        val pageSize = readPageSize(textReaderUI)
+        return readString(index, pageSize)
+    }
+
+    fun indexToNextPage(textReaderUI: TextReaderUIEnum) {
+        val pageSize = readPageSize(textReaderUI)
+        index = min((index + pageSize + nexPageOffset), randomAccessFile.length().toInt())
+    }
+
+    fun indexToPrevPage(textReaderUI: TextReaderUIEnum) {
+        val pageSize = readPageSize(textReaderUI)
+        index = max(0, index - pageSize)
+    }
+
+    fun readString(position: Int, length: Int): String {
+        return try {
+            val bytes = ByteArray(length)
+            randomAccessFile.seek(position.toLong())
+            randomAccessFile.read(bytes, 0, length)
+            trimIncompleteCharacters(bytes)
+        } catch (e: IOException) {
+            throw IOException("读取文件时发生错误", e)
+        }
+    }
+
+    private fun trimIncompleteCharacters(bytes: ByteArray): String {
         var byteIndex = bytes.size - 1
         var cnByteSize = 0
-        while (byteIndex > 0) {
-            val byte = bytes[byteIndex]
-            if (byte >= 0) {
-                break
-            }
+        while (byteIndex >= 0 && bytes[byteIndex] < 0) {
             cnByteSize++
             byteIndex--
         }
         val i = cnByteSize % 3
+        nexPageOffset = -i
         var copyOfRange = bytes.copyOfRange(0, bytes.size - i)
         var preByteIndex = 0
         var preCnByteSize = 0
-        while (preByteIndex < copyOfRange.size) {
-            val byte = copyOfRange[preByteIndex]
-            if (byte >= 0) {
-                break
-            }
+        while (preByteIndex < copyOfRange.size && copyOfRange[preByteIndex] < 0) {
             preByteIndex++
             preCnByteSize++
         }
         val cnCount = preCnByteSize % 3
         if (cnCount > 0) {
             val addCount = 3 - cnCount
-            val currentPosition = position - addCount
-            randomAccessFile.seek(currentPosition)
+            index -= addCount
+            randomAccessFile.seek(index.toLong())
             val preAddByte = ByteArray(addCount)
             randomAccessFile.read(preAddByte, 0, addCount)
             copyOfRange = preAddByte + copyOfRange
@@ -90,7 +128,7 @@ class TextBook(path: String) : AbstractBook() {
         return String(copyOfRange, StandardCharsets.UTF_8)
     }
 
-    override fun readingProgress(): String{
+    override fun readingProgress(): String {
         val decimalFormat = DecimalFormat("0.00%")
         val lengthDecimal = BigDecimal(randomAccessFile.length())
         val indexDecimal = BigDecimal(index)
@@ -98,4 +136,3 @@ class TextBook(path: String) : AbstractBook() {
         return decimalFormat.format(divide)
     }
 }
-

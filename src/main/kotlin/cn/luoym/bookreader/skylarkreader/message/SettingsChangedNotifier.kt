@@ -16,4 +16,6 @@ interface SettingsChangedNotifier {
     fun onPageSizeChanged()
 
     fun onEpubBookFontChanged()
+
+    fun onTextReaderUIChanged()
 }

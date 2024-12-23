@@ -26,5 +26,6 @@ class Constants {
 
         const val STATUS_BAR_ID = "skylark-reader-status-bar"
 
+        const val BASE_TIMESTAMP = 1730000000000
     }
 }

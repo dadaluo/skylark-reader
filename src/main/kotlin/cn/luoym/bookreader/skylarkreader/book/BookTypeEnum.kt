@@ -6,8 +6,6 @@ enum class BookTypeEnum {
 
     EPUB_BOOK,
 
-    WEB_SITE,
-
     NOT_SUPPORTED,
     ;
 

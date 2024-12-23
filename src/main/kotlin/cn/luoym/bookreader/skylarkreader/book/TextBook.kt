@@ -20,7 +20,7 @@ class TextBook(path: String) : AbstractBook() {
 
     private val properties: SettingsProperties
 
-    var index = 0
+    var position = 0
 
     var nexPageOffset = 0
 
@@ -41,7 +41,7 @@ class TextBook(path: String) : AbstractBook() {
     constructor(bookState: BookState) : this(bookState.path!!) {
         id = bookState.id!!
         bookName = bookState.bookName!!
-        index = bookState.index!!
+        position = bookState.index!!
         path = bookState.path!!
         resetPageIndex()
     }
@@ -51,15 +51,15 @@ class TextBook(path: String) : AbstractBook() {
     }
 
     fun resetPageIndex() {
-        pageIndex = index / properties.pageSize + 1
+        pageIndex = position / properties.pageSize + 1
     }
 
     fun getBookPosition(): Int {
         if (pageIndex > maxPageIndex) {
-            return index
+            return position
         }
-        index = (pageIndex - 1) * properties.pageSize
-        return index
+        position = (pageIndex - 1) * properties.pageSize
+        return position
     }
 
     override fun doRead(): String {
@@ -76,17 +76,17 @@ class TextBook(path: String) : AbstractBook() {
 
     fun readCurrentPageContent(textReaderUI: TextReaderUIEnum): String {
         val pageSize = readPageSize(textReaderUI)
-        return readString(index, pageSize)
+        return readString(position, pageSize)
     }
 
     fun indexToNextPage(textReaderUI: TextReaderUIEnum) {
         val pageSize = readPageSize(textReaderUI)
-        index = min((index + pageSize + nexPageOffset), randomAccessFile.length().toInt())
+        position = min((position + pageSize + nexPageOffset), randomAccessFile.length().toInt())
     }
 
     fun indexToPrevPage(textReaderUI: TextReaderUIEnum) {
         val pageSize = readPageSize(textReaderUI)
-        index = max(0, index - pageSize)
+        position = max(0, position - pageSize)
     }
 
     fun readString(position: Int, length: Int): String {
@@ -119,8 +119,8 @@ class TextBook(path: String) : AbstractBook() {
         val cnCount = preCnByteSize % 3
         if (cnCount > 0) {
             val addCount = 3 - cnCount
-            index -= addCount
-            randomAccessFile.seek(index.toLong())
+            position -= addCount
+            randomAccessFile.seek(position.toLong())
             val preAddByte = ByteArray(addCount)
             randomAccessFile.read(preAddByte, 0, addCount)
             copyOfRange = preAddByte + copyOfRange
@@ -131,7 +131,7 @@ class TextBook(path: String) : AbstractBook() {
     override fun readingProgress(): String {
         val decimalFormat = DecimalFormat("0.00%")
         val lengthDecimal = BigDecimal(randomAccessFile.length())
-        val indexDecimal = BigDecimal(index)
+        val indexDecimal = BigDecimal(position)
         val divide = indexDecimal.divide(lengthDecimal, 4, RoundingMode.HALF_UP)
         return decimalFormat.format(divide)
     }

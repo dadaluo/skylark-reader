@@ -1,11 +1,14 @@
 package cn.luoym.bookreader.skylarkreader.book
 
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.ui.JBIntSpinner
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
 abstract class AbstractBook {
+
+    protected val log = logger<AbstractBook>()
 
     var id: Long = 0
 

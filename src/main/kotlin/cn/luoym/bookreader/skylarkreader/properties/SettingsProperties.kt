@@ -16,7 +16,7 @@ class SettingsProperties : PersistentStateComponent<SettingsState> {
 
     var fontSize: Int = 14
 
-    var pageSize: Int = 3000
+    var pageSize: Int = 5000
 
     var autoTurnPage: Boolean = true
 

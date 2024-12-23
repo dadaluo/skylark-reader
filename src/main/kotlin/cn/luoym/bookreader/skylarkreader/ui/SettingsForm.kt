@@ -73,7 +73,7 @@ class SettingsForm : JPanel() {
                     .enabledIf(consolePredicate)
             }
             row(ReaderBundle.message("skylark.reader.settings.text.console.page.size")) {
-                intTextField(1000..10000, 1)
+                intTextField(1000..50000, 1)
                     .bindIntText(pageSize)
                     .comment(ReaderBundle.message("skylark.reader.settings.text.console.page.size.comment"))
                     .enabledIf(consolePredicate)

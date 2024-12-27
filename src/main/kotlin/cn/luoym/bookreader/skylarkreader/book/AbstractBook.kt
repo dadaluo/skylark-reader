@@ -42,7 +42,7 @@ abstract class AbstractBook {
     open fun readingProgress():String{
         val decimalFormat = DecimalFormat("0.00%")
         val lengthDecimal = BigDecimal(maxPageIndex)
-        val indexDecimal = BigDecimal(pageIndex)
+        val indexDecimal = BigDecimal(pageIndex - 1)
         val divide = indexDecimal.divide(lengthDecimal, 4, RoundingMode.HALF_UP)
         return decimalFormat.format(divide)
     }

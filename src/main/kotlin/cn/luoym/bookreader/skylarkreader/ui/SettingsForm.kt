@@ -4,6 +4,7 @@ import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
 import cn.luoym.bookreader.skylarkreader.properties.TextReaderUIEnum
 import cn.luoym.bookreader.skylarkreader.utils.ReaderBundle
 import com.intellij.openapi.observable.properties.PropertyGraph
+import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindIntText
@@ -11,6 +12,8 @@ import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.layout.ComponentPredicate
+import com.intellij.ui.layout.ValidationInfoBuilder
+import com.intellij.ui.layout.selected
 import java.awt.BorderLayout
 import java.awt.GraphicsEnvironment
 import javax.swing.DefaultComboBoxModel
@@ -38,6 +41,8 @@ class SettingsForm : JPanel() {
     var textReaderUI = properties.property(settings.textReaderUI)
 
     var widgetPageSize = properties.property(settings.widgetPageSize)
+
+    val formPanel: DialogPanel
 
 
     private val fontStyleGroup = panel {
@@ -70,20 +75,26 @@ class SettingsForm : JPanel() {
             row {
                 checkBox(ReaderBundle.message("skylark.reader.settings.text.console.auto.turn.page"))
                     .bindSelected(autoTurnPage)
-                    .enabledIf(consolePredicate)
-            }
+            }.enabledIf(consolePredicate)
             row(ReaderBundle.message("skylark.reader.settings.text.console.page.size")) {
                 intTextField(1000..50000, 1)
                     .bindIntText(pageSize)
                     .comment(ReaderBundle.message("skylark.reader.settings.text.console.page.size.comment"))
-                    .enabledIf(consolePredicate)
-            }
+                    //为什么下面这段代码不会执行？？
+                    .validationOnInput {
+                        if (it.text.toInt() < 1000 || it.text.toInt() > 50000) {
+                            ValidationInfoBuilder(it).error("skylark.reader.settings.text.console.page.size.valid")
+                        } else {
+                            null
+                        }
+                    }
+
+            }.enabledIf(consolePredicate)
             row(ReaderBundle.message("skylark.reader.settings.text.widget.page.size")) {
                 intTextField(50..1000, 1)
                     .bindIntText(widgetPageSize)
                     .comment(ReaderBundle.message("skylark.reader.settings.text.widget.page.size.comment"))
-                    .enabledIf(ShowReadUIComponentPredicate(TextReaderUIEnum.STATUS_BAR_WIDGET))
-            }
+            }.enabledIf(ShowReadUIComponentPredicate(TextReaderUIEnum.STATUS_BAR_WIDGET))
         }
     }
 
@@ -104,11 +115,12 @@ class SettingsForm : JPanel() {
 
     init {
         layout = BorderLayout()
-        add(panel {
+        formPanel = panel {
             row { cell(fontStyleGroup).align(AlignX.FILL) }
             row { cell(texConsoleGroup).align(AlignX.FILL) }
             row { cell(epubGroup).align(AlignX.FILL) }
-        })
+        }
+        add(formPanel)
     }
 
     fun reset(){

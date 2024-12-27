@@ -35,17 +35,15 @@
                 id="skylark-reader-widget"/>
     </extensions>
     <actions>
-        <group id="skylark-reader-action-group" text="SkylarkReader">
-            <action class="cn.luoym.bookreader.skylarkreader.action.NextPageAction" id="skylark-reader-next-page"
-                    text="下一页">
+        <group id="skylark-reader-action-group" text="Skylark Reader" popup="true" >
+            <add-to-group group-id="ToolsMenu" />
+            <action class="cn.luoym.bookreader.skylarkreader.action.NextPageAction" id="skylark-reader-next-page">
                 <keyboard-shortcut first-keystroke="alt a" keymap="$default"/>
             </action>
-            <action class="cn.luoym.bookreader.skylarkreader.action.PrevPageAction" id="skylark-reader-prev-page"
-                    text="上一页">
+            <action class="cn.luoym.bookreader.skylarkreader.action.PrevPageAction" id="skylark-reader-prev-page">
                 <keyboard-shortcut first-keystroke="alt z" keymap="$default"/>
             </action>
-            <action class="cn.luoym.bookreader.skylarkreader.action.ClearContentAction"
-                    id="skylark-reader-clear-content" text="清除内容">
+            <action class="cn.luoym.bookreader.skylarkreader.action.ClearContentAction" id="skylark-reader-clear-content" >
                 <keyboard-shortcut first-keystroke="alt x" keymap="$default"/>
             </action>
         </group>

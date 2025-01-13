@@ -62,7 +62,7 @@ class Context(private val project: Project) {
         currentReaderUI = readerUI
         if (readerUI is PluginUI) {
             val manager = toolWindow.contentManager
-            manager.removeAllContents(false)
+            manager.removeAllContents(true)
             manager.addContent(readerUI.uiContent())
         }
         readerUI.showReadContent()

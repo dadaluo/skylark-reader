@@ -7,6 +7,7 @@ import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
 import cn.luoym.bookreader.skylarkreader.utils.sendNotify
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
@@ -29,13 +30,13 @@ import java.util.function.Consumer
 import javax.swing.JPanel
 import javax.swing.ListModel
 
-class BookshelvesUI(val project: Project) : PluginUI {
+class BookshelvesUI(val project: Project) : PluginUI, Disposable {
 
-    val bookshelves: JPanel = JPanel(BorderLayout())
+    private val bookshelves: JPanel = JPanel(BorderLayout())
 
-    val listMode: ArrayListModel<AbstractBook> = ArrayListModel<AbstractBook>()
+    private val listMode: ArrayListModel<AbstractBook> = ArrayListModel<AbstractBook>()
 
-    val jbList: JBList<AbstractBook> = JBList<AbstractBook>()
+    private val jbList: JBList<AbstractBook> = JBList<AbstractBook>()
 
     private val uiContent: Content
 
@@ -145,5 +146,11 @@ class BookshelvesUI(val project: Project) : PluginUI {
         }
     }
 
-
+    override fun dispose() {
+        val instance = Context.instance(project)
+        uiContent.dispose()
+        if (instance.bookshelvesUI == this){
+            instance.bookshelvesUI = null
+        }
+    }
 }

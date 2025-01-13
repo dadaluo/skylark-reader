@@ -126,9 +126,10 @@ class ReaderConsoleUI(
 
     override fun dispose() {
         exit()
-        Context.instance.textReadConsole = null
-        if (Context.instance.currentReaderUI == this){
-            Context.instance.currentReaderUI = null
+        val instance = Context.instance(project)
+        instance.textReadConsole = null
+        if (instance.currentReaderUI == this){
+            instance.currentReaderUI = null
         }
         super.dispose()
     }

@@ -8,7 +8,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 class NextPageAction: AnAction(ReaderBundle.message("skylark.reader.action.text.next.page")) {
 
     override fun actionPerformed(p0: AnActionEvent) {
-        val context = Context.instance
-        context.currentReaderUI?.nextPage()
+        p0.project?.let {
+            val context = Context.instance(it)
+            context.currentReaderUI?.nextPage()
+        }
+
     }
 }

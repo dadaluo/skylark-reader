@@ -54,14 +54,11 @@
 
 ## [0.0.2] - 2020-06-22
 
-### Added
-
-- [Gradle Changelog Plugin](https://github.com/JetBrains/gradle-changelog-plugin) integration
 
 ### Changed
 
-- Bump Detekt version
-- Change pluginSinceBuild to 193
+- 将UI设置为project级，解决了开多个项目时，只有一个项目能打开插件的问题
+- 稍微加快了些插件首次加载时的速度
 
 ## [0.0.1]
 

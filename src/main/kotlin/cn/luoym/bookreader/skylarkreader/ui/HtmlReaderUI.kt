@@ -24,13 +24,13 @@ import javax.swing.Icon
 
 class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: AbstractBook) : ReaderUI, Disposable, PluginUI{
 
-    val htmlPanel: JCEFHtmlPanel
+    private val htmlPanel: JCEFHtmlPanel
 
     private lateinit var jBIntSpinner: JBIntSpinner
 
     private val readerContent: Content
 
-    var activated: Boolean = false
+    private var activated: Boolean = false
 
     var book: AbstractBook = book
         set(value) {
@@ -39,7 +39,7 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
         }
 
     init {
-        val context = Context.instance
+        val context = Context.instance(project)
         htmlPanel = JCEFHtmlPanel(context.serverUrl)
         val toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, createActionGroup(), true)
         toolbar.targetComponent = htmlPanel.component
@@ -55,7 +55,7 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
     override fun showReadContent() {
         activated = true
         val content = book.doRead()
-        val context = Context.instance
+        val context = Context.instance(project)
         htmlPanel.loadURL(context.serverUrl + "/$content")
     }
 
@@ -134,9 +134,10 @@ class HtmlReaderUI(val project: Project, val toolWindow: ToolWindow, book: Abstr
 
     override fun dispose() {
         exit()
-        Context.instance.htmlReaderUI = null
-        if (Context.instance.currentReaderUI == this){
-            Context.instance.currentReaderUI = null
+        val instance = Context.instance(project)
+        instance.htmlReaderUI = null
+        if (instance.currentReaderUI == this) {
+            instance.currentReaderUI = null
         }
         book.spinner = null
         htmlPanel.dispose()

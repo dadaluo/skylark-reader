@@ -1,10 +1,10 @@
 package cn.luoym.bookreader.skylarkreader.properties
 
-import com.intellij.openapi.util.IconLoader
-
 class Constants {
     companion object {
         const val PLUGIN_NAME = "SkylarkReader"
+
+        const val TOOL_WINDOWS_ID = "skylark-reader"
 
         const val LOCAL_RESOURCE = "sr-local/"
 

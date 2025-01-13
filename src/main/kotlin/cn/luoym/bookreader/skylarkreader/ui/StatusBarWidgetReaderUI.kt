@@ -26,13 +26,13 @@ class StatusBarWidgetReaderUI(project: Project) : EditorBasedStatusBarPopup(proj
     private var widgetContent: String = ""
 
     override fun createInstance(project: Project): StatusBarWidget {
-        var readerUI = StatusBarWidgetReaderUI(project)
-        Context.instance.statusBarWidget = readerUI
+        val readerUI = StatusBarWidgetReaderUI(project)
+        Context.instance(project).statusBarWidget = readerUI
         return readerUI
     }
 
-    override fun createPopup(context: DataContext): ListPopup? {
-        var group = ActionManager.getInstance()
+    override fun createPopup(context: DataContext): ListPopup {
+        val group = ActionManager.getInstance()
             .getAction(Constants.ACTION_GROUP_ID) as ActionGroup
         return JBPopupFactory.getInstance()
             .createActionGroupPopup(
@@ -45,7 +45,7 @@ class StatusBarWidgetReaderUI(project: Project) : EditorBasedStatusBarPopup(proj
     }
 
     override fun getWidgetState(file: VirtualFile?): WidgetState {
-        var instance = SettingsProperties.instance
+        val instance = SettingsProperties.instance
         if (instance.textReaderUI == TextReaderUIEnum.CONSOLE || !isActive() || !::book.isInitialized) {
             return WidgetState.HIDDEN
         }
@@ -85,7 +85,7 @@ class StatusBarWidgetReaderUI(project: Project) : EditorBasedStatusBarPopup(proj
     override fun exit() {
         widgetContent = ""
         activated = false
-        Context.instance.currentReaderUI = null
+        Context.instance(project).currentReaderUI = null
     }
 
     override fun nextPage() {
@@ -100,10 +100,11 @@ class StatusBarWidgetReaderUI(project: Project) : EditorBasedStatusBarPopup(proj
 
     override fun dispose() {
         exit()
-        if (Context.instance.currentReaderUI == this) {
-            Context.instance.currentReaderUI = null
+        val instance = Context.instance(project)
+        if (instance.currentReaderUI == this) {
+            instance.currentReaderUI = null
+            instance.statusBarWidget = null
         }
-        Context.instance.statusBarWidget = null
         super.dispose()
     }
 }

@@ -17,6 +17,7 @@ import com.intellij.util.xmlb.annotations.Attribute
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.Serializable
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 
@@ -80,7 +81,7 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
         log.info("重置所有书籍的页码索引")
     }
 
-    override fun getState(): State? {
+    override fun getState(): State {
         val bookshelvesState = State()
         bookshelves.values.forEach {
             if (it is TextBook){
@@ -99,22 +100,28 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
     }
 
     override fun loadState(state: State) {
-        state.bookStateMap.forEach { (id, bookState) ->
-            try {
-                val book = when (bookState.bookType) {
-                    BookTypeEnum.TEXT_BOOK -> TextBook(bookState)
-                    BookTypeEnum.EPUB_BOOK -> EpubBook(bookState)
-                    else -> null
+        log.info("---- Bookshelves load state ----")
+        Executors.newVirtualThreadPerTaskExecutor().use {
+            state.bookStateMap.forEach { (id, bookState) ->
+                it.execute {
+                    try {
+                        val book = when (bookState.bookType) {
+                            BookTypeEnum.TEXT_BOOK -> TextBook(bookState)
+                            BookTypeEnum.EPUB_BOOK -> EpubBook(bookState)
+                            else -> null
+                        }
+                        book?.let {
+                            bookshelves[id] = it
+                            log.info("成功加载书籍 ${it.bookName} (${id})")
+                        }
+                    } catch (e: FileNotFoundException) {
+                        log.error("加载书籍失败: ${e.localizedMessage}", e)
+                        sendNotify("加载书籍失败，出现错误：${e.localizedMessage}", NotificationType.ERROR)
+                    }
                 }
-                book?.let {
-                    bookshelves[id] = it
-                    log.info("成功加载书籍 ${it.bookName} (${id})")
-                }
-            } catch (e: FileNotFoundException) {
-                log.error("加载书籍失败: ${e.localizedMessage}", e)
-                sendNotify("加载书籍失败，出现错误：${e.localizedMessage}", NotificationType.ERROR)
             }
         }
+        log.info("---- Bookshelves load state success ----")
     }
 
     class State : Serializable{
@@ -136,8 +143,6 @@ class BookState : Serializable {
 
     @Attribute
     var bookType: BookTypeEnum? = null
-
-    constructor()
 
     constructor(id: Long, bookName: String, index: Int,  path: String, bookType: BookTypeEnum) {
         this.id = id

@@ -7,7 +7,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 
 class PrevPageAction: AnAction(ReaderBundle.message("skylark.reader.action.text.previous.page")) {
     override fun actionPerformed(p0: AnActionEvent) {
-        var instance = Context.instance
-        instance.currentReaderUI?.prevPage()
+        p0.project?.let {
+            val context = Context.instance(it)
+            context.currentReaderUI?.prevPage()
+        }
+
     }
 }

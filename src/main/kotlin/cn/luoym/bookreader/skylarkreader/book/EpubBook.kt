@@ -12,7 +12,7 @@ import java.io.FileNotFoundException
 class EpubBook(path: String) : AbstractBook() {
     val properties: SettingsProperties
     val book: Book
-    val pagePathIndexMap:Map<String, Int>
+    private val pagePathIndexMap:Map<String, Int>
 
     init {
         this.path = path
@@ -30,7 +30,7 @@ class EpubBook(path: String) : AbstractBook() {
             val references = book.spine.spineReferences
             maxPageIndex = references.size
             pagePathIndexMap = HashMap(maxPageIndex)
-            for (i in 0..maxPageIndex - 1 ) {
+            for (i in 0..<maxPageIndex) {
                 val reference = references[i]
                 pagePathIndexMap[reference.resource.href] = i
             }

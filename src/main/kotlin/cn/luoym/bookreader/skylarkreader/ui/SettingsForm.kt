@@ -13,7 +13,6 @@ import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.layout.ComponentPredicate
 import com.intellij.ui.layout.ValidationInfoBuilder
-import com.intellij.ui.layout.selected
 import java.awt.BorderLayout
 import java.awt.GraphicsEnvironment
 import javax.swing.DefaultComboBoxModel
@@ -62,8 +61,8 @@ class SettingsForm : JPanel() {
         group("Text Reader") {
 
             row(ReaderBundle.message("skylark.reader.settings.text.reader.show.ui")) {
-                var cellRenderer = SimpleListCellRenderer.create<TextReaderUIEnum> { label, value, _ ->
-                    label.text = when (value) {
+                val cellRenderer = SimpleListCellRenderer.create<TextReaderUIEnum> { label, value, _ ->
+                    label.text = when (value!!) {
                         TextReaderUIEnum.CONSOLE -> ReaderBundle.message("skylark.reader.settings.text.show.console")
                         TextReaderUIEnum.STATUS_BAR_WIDGET -> ReaderBundle.message("skylark.reader.settings.text.show.status.bar.widget")
                     }
@@ -71,6 +70,7 @@ class SettingsForm : JPanel() {
                 comboBox(DefaultComboBoxModel(TextReaderUIEnum.entries.toTypedArray()), cellRenderer)
                     .bindItem(textReaderUI)
             }
+            separator()
             val consolePredicate = ShowReadUIComponentPredicate(TextReaderUIEnum.CONSOLE)
             row {
                 checkBox(ReaderBundle.message("skylark.reader.settings.text.console.auto.turn.page"))
@@ -90,6 +90,7 @@ class SettingsForm : JPanel() {
                     }
 
             }.enabledIf(consolePredicate)
+            separator()
             row(ReaderBundle.message("skylark.reader.settings.text.widget.page.size")) {
                 intTextField(50..1000, 1)
                     .bindIntText(widgetPageSize)

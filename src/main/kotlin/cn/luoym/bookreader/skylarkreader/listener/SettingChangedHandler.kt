@@ -1,18 +1,19 @@
 package cn.luoym.bookreader.skylarkreader.listener
 
+import cn.luoym.bookreader.skylarkreader.extensions.Context
 import cn.luoym.bookreader.skylarkreader.message.SettingsChangedNotifier
 import cn.luoym.bookreader.skylarkreader.properties.Bookshelves
-import cn.luoym.bookreader.skylarkreader.extensions.Context
 import cn.luoym.bookreader.skylarkreader.properties.SettingsProperties
 import cn.luoym.bookreader.skylarkreader.properties.TextReaderUIEnum
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.ProjectManager
 
 class SettingChangedHandler : SettingsChangedNotifier {
 
     override fun onFontStyleChanged() {
-        val context = Context.instance
-        context.textReadConsole?.updateFontStyle()
-
+        ProjectManager.getInstance().openProjects.forEach {
+            val context = Context.instance(it)
+            context.textReadConsole?.updateFontStyle()
+        }
     }
 
     override fun onPageSizeChanged() {
@@ -21,15 +22,19 @@ class SettingChangedHandler : SettingsChangedNotifier {
     }
 
     override fun onEpubBookFontChanged() {
-        val context = Context.instance
-        context.htmlReaderUI?.updateFontStyle()
+        ProjectManager.getInstance().openProjects.forEach {
+            val context = Context.instance(it)
+            context.htmlReaderUI?.updateFontStyle()
+        }
     }
 
     override fun onTextReaderUIChanged() {
-        var instance = SettingsProperties.instance
-        var context = Context.instance
-        if (instance.textReaderUI == TextReaderUIEnum.CONSOLE && context.currentReaderUI == context.statusBarWidget){
-            context.currentReaderUI?.exit()
+        val instance = SettingsProperties.instance
+        ProjectManager.getInstance().openProjects.forEach {
+            val context = Context.instance(it)
+            if (instance.textReaderUI == TextReaderUIEnum.CONSOLE && context.currentReaderUI == context.statusBarWidget) {
+                context.currentReaderUI?.exit()
+            }
         }
     }
 }

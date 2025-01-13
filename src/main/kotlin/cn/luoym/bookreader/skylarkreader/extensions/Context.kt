@@ -72,8 +72,11 @@ class Context(private val project: Project) {
         if (book is TextBook) {
             val instance = SettingsProperties.instance
             if (instance.textReaderUI == TextReaderUIEnum.STATUS_BAR_WIDGET) {
-                val widgetsManager = ApplicationManager.getApplication().getService(StatusBarWidgetsManager::class.java)
-                widgetsManager.updateWidget(ReaderStatusBarWidgetFactory::class.java)
+                if (statusBarWidget == null) {
+                    val widgetsManager =
+                        project.getService(StatusBarWidgetsManager::class.java)
+                    widgetsManager.updateWidget(ReaderStatusBarWidgetFactory::class.java)
+                }
                 statusBarWidget?.let {
                     it.book = book
                     return it

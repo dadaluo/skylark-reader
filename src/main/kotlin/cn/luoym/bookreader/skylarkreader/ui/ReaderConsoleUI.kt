@@ -68,7 +68,7 @@ class ReaderConsoleUI(
         showReadContent()
     }
 
-    fun editorInit() {
+    private fun editorInit() {
         val properties =
             SettingsProperties.instance
         updateFontStyle()

@@ -64,16 +64,12 @@ class StatusBarWidgetReaderUI(project: Project) : EditorBasedStatusBarPopup(proj
     override fun showReadContent() {
         activated = true
         widgetContent = readCurrentPageContent()
-        update {
-            myStatusBar?.updateWidget(Constants.STATUS_BAR_WEDGET_ID)
-        }
+        update()
     }
 
     override fun clearReadContent() {
         widgetContent = ""
-        update {
-            myStatusBar?.updateWidget(Constants.STATUS_BAR_WEDGET_ID)
-        }
+        update()
     }
 
     override fun updateFontStyle() {

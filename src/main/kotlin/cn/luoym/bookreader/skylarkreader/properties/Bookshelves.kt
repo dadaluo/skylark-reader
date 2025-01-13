@@ -131,7 +131,7 @@ class Bookshelves : PersistentStateComponent<Bookshelves.State> {
 
 }
 
-class BookState : Serializable {
+class BookState() : Serializable {
     @Attribute
     var id: Long? = null
     @Attribute
@@ -144,7 +144,7 @@ class BookState : Serializable {
     @Attribute
     var bookType: BookTypeEnum? = null
 
-    constructor(id: Long, bookName: String, index: Int,  path: String, bookType: BookTypeEnum) {
+    constructor(id: Long, bookName: String, index: Int,  path: String, bookType: BookTypeEnum): this() {
         this.id = id
         this.bookName = bookName
         this.index = index

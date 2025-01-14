@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NonNls
 class ReaderStatusBarWidgetFactory : StatusBarWidgetFactory {
 
     companion object{
-        private val log = logger<AbstractBook>()
+        private val log = logger<ReaderStatusBarWidgetFactory>()
     }
 
     override fun getId(): @NonNls String = Constants.STATUS_BAR_ID

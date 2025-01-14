@@ -104,7 +104,8 @@ class ReaderConsoleUI(
     }
 
     override fun exit() {
-        activated = true
+        activated = false
+        book.spinner = null
         clear()
     }
 
@@ -134,7 +135,7 @@ class ReaderConsoleUI(
         super.dispose()
     }
 
-    fun createActionGroup(): DefaultActionGroup {
+    private fun createActionGroup(): DefaultActionGroup {
         val actionGroup = DefaultActionGroup()
         actionGroup.add(ReaderUIExitAction("Exit", this))
         actionGroup.add(PrePageAction("PrePage"))
@@ -175,7 +176,7 @@ class ReaderConsoleUI(
         }
     }
 
-    class ClearThisConsoleAction(val myConsoleView: ConsoleView) : ClearConsoleAction() {
+    class ClearThisConsoleAction(private val myConsoleView: ConsoleView) : ClearConsoleAction() {
 
         override fun update(e: AnActionEvent) {
             val enabled = this.myConsoleView.contentSize > 0
@@ -200,7 +201,7 @@ class ReaderConsoleUI(
         }
     }
 
-    inner class JumpPageAction(name: String, icon: Icon, val intSpinner: JBIntSpinner) : AnAction(name, "", icon) {
+    inner class JumpPageAction(name: String, icon: Icon, private val intSpinner: JBIntSpinner) : AnAction(name, "", icon) {
 
         override fun actionPerformed(p0: AnActionEvent) {
             val value = intSpinner.value as Int

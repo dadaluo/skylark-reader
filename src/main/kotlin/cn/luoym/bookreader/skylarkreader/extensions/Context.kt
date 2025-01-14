@@ -73,8 +73,8 @@ class Context(private val project: Project) {
             val instance = SettingsProperties.instance
             if (instance.textReaderUI == TextReaderUIEnum.STATUS_BAR_WIDGET) {
                 if (statusBarWidget == null) {
-                    val widgetsManager =
-                        project.getService(StatusBarWidgetsManager::class.java)
+                    val widgetsManager = project.service<StatusBarWidgetsManager>()
+                    // 为什么会提示未注册factory？？？
                     widgetsManager.updateWidget(ReaderStatusBarWidgetFactory::class.java)
                 }
                 statusBarWidget?.let {

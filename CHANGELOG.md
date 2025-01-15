@@ -1,64 +1,15 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# IntelliJ Platform Plugin Template Changelog
+# Skylark Reader Changelog
 
-## [Unreleased]
 
-### Changed
-
-- Upgrade Gradle Wrapper to `8.10.2`
-- Update `platformVersion` to `2023.3.8`
-- Dependencies - upgrade `org.jetbrains.intellij.platform` to `2.1.0`
-- Dependencies - upgrade `org.jetbrains.qodana` to `2024.2.3`
-- Dependencies (GitHub Actions) - upgrade `gradle/actions/setup-gradle` to `v4`
-- Add back the `org.gradle.toolchains.foojay-resolver-convention` Gradle settings plugin
-
-### Fixed
-
-- Fixed _Run Plugin_ run configuration logs location
-
-### Removed
-
-- Removed _Run Qodana_ and _Run UI for UI Tests_ run configurations
-
-## [0.2.0] - 2020-07-02
-
-### Added
-
-- JetBrains Plugin badges and TODO list for the end users
-- `ktlint` integration
-
-### Changed
-
-- `pluginUntilBuild` set to the correct format: `201.*`
-- Bump detekt dependency to `1.10.0`
-
-### Fixed
-
-- GitHub Actions — Template Cleanup, fixed adding files to git
-- Update Template plugin name on cleanup
-- Set `buildUponDefaultConfig = true` in detekt configuration
-
-## [0.1.0] - 2020-06-26
-
-### Added
-
-- `settings.gradle.kts` for the [performance purposes](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#always_define_a_settings_file)
-- `#REMOVE-ON-CLEANUP#` token to mark content to be removed with **Template Cleanup** workflow
-
-### Changed
-
-- README proofreading
-- GitHub Actions — Update IDE versions for the Plugin Verifier
-- Update platformVersion to `2020.1.2`
-
-## [0.0.2] - 2020-06-22
-
+## [0.0.2] - 2025-01-14
 
 ### Changed
 
 - 将UI设置为project级，解决了开多个项目时，只有一个项目能打开插件的问题
 - 稍微加快了些插件首次加载时的速度
+- 优化了资源释放
 
 ## [0.0.1]
 

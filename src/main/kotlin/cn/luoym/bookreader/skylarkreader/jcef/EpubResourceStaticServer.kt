@@ -39,10 +39,10 @@ class EpubResourceStaticServer : HttpRequestHandler() {
     ): Boolean {
         val bookshelves = Bookshelves.instance
         val path = urlDecoder.path()
-        if (!path.contains(Constants.PLUGIN_NAME)) {
+        if (!path.contains(Constants.PLUGIN_PATH)) {
             return false
         }
-        val requestPath = path.removePrefix("/${Constants.PLUGIN_NAME}/")
+        val requestPath = path.removePrefix("/${Constants.PLUGIN_PATH}/")
         logger.info("Epub resource path: $requestPath")
 
         return when {
@@ -154,6 +154,7 @@ class EpubResourceStaticServer : HttpRequestHandler() {
         val background = UIUtil.getPanelBackground()
         val foreground = UIUtil.getLabelForeground()
         val settings = SettingsProperties.instance
+        // language=CSS
         return "background-color: rgba(${background.red}, ${background.green}, ${background.blue}, ${background.alpha});" +
                 "color: rgba(${foreground.red}, ${foreground.green}, ${foreground.blue}, ${foreground.alpha});" +
                 "font-family: '${settings.fontFamily}';" +

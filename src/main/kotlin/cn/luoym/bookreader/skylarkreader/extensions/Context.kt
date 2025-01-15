@@ -42,7 +42,7 @@ class Context(private val project: Project) {
 
     var currentBook:AbstractBook? = null
 
-    val serverUrl: String =  "http://localhost:${BuiltInServerManager.getInstance().port}/${Constants.PLUGIN_NAME}"
+    val serverUrl: String =  "http://localhost:${BuiltInServerManager.getInstance().port}/${Constants.PLUGIN_PATH}"
 
 
     fun showBookshelvesUI() {

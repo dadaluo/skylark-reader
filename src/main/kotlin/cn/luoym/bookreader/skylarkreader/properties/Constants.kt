@@ -2,7 +2,9 @@ package cn.luoym.bookreader.skylarkreader.properties
 
 class Constants {
     companion object {
-        const val PLUGIN_NAME = "SkylarkReader"
+        const val PLUGIN_NAME = "Skylark Reader"
+
+        const val PLUGIN_PATH = "SkylarkReader"
 
         const val TOOL_WINDOWS_ID = "skylark-reader"
 
